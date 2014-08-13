@@ -1,0 +1,1138 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     49748,       1129]
+NotebookOptionsPosition[     47079,       1039]
+NotebookOutlinePosition[     47444,       1055]
+CellTagsIndexPosition[     47401,       1052]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+Manual Implementation and Test of a Random Number Generator\
+\>", "Title",
+ CellChangeTimes->{{3.5282446622517695`*^9, 3.5282446637038527`*^9}, {
+  3.6168851006508636`*^9, 3.6168851261390247`*^9}}],
+
+Cell["Milan Cvitkovic", "Subtitle",
+ CellChangeTimes->{{3.5282446686311345`*^9, 3.5282446747914867`*^9}, 
+   3.6168850948439894`*^9}],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+a) The Lehmer Minimal Standard - Code Implementation\
+\>", "Section",
+ CellChangeTimes->{{3.5282446875102143`*^9, 3.528244693657566*^9}, {
+  3.52824483185147*^9, 3.5282448675195103`*^9}}],
+
+Cell["\<\
+Writing a module to generate a random number based on the Lehmer minimal \
+standard pseud-random number generating function z+1 = f(z) = 16807z mod \
+2147483647 (code derived from Bill Titus\[CloseCurlyQuote] lecture):\
+\>", "Text",
+ CellChangeTimes->{{3.5282448779171047`*^9, 3.528244957110635*^9}, {
+  3.5282450755834107`*^9, 3.528245095471548*^9}, {3.528551536557489*^9, 
+  3.528551541002877*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"minStandardRNG", "[", "]"}], ":=", "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"a", "=", "16807"}], ",", 
+      RowBox[{"m", "=", "2147483647"}]}], "}"}], ",", "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"seed", "=", 
+      RowBox[{"Mod", "[", 
+       RowBox[{
+        RowBox[{"a", "*", "seed"}], ",", "m"}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"N", "[", 
+      RowBox[{"seed", "/", "m"}], "]"}]}]}], "\[IndentingNewLine]", 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.528551242944425*^9, 3.5285512843479033`*^9}, {
+  3.5285515448383427`*^9, 3.5285515588612757`*^9}}],
+
+Cell["\<\
+Testing based on test from Park and Miller page 1195 (code has to be modified \
+slightly to output integers and not values between 0 and 1 to see if the code \
+passes the test):\
+\>", "Text",
+ CellChangeTimes->{{3.5282456220966697`*^9, 3.528245624610813*^9}, {
+  3.5282456866913643`*^9, 3.5282457020862446`*^9}, {3.5282463140032444`*^9, 
+  3.5282463405207615`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", 
+  RowBox[{"n", ",", "seed"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"minStandardRNG", "[", "]"}], ":=", "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"a", "=", "16807"}], ",", 
+      RowBox[{"m", "=", "2147483647"}]}], "}"}], ",", "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"seed", "=", 
+      RowBox[{"Mod", "[", 
+       RowBox[{
+        RowBox[{"a", "*", "seed"}], ",", "m"}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"N", "[", 
+      RowBox[{"seed", "/", "m"}], "]"}]}]}], "\[IndentingNewLine]", 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"n", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"For", "[", 
+  RowBox[{
+   RowBox[{"i", "=", "1"}], ",", 
+   RowBox[{"i", "\[LessEqual]", "10000"}], ",", 
+   RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+   RowBox[{"(", "\[IndentingNewLine]", 
+    RowBox[{"n", "=", 
+     RowBox[{"minStandardRNGTest", "[", "n", "]"}]}], "\[IndentingNewLine]", 
+    ")"}]}], "\[IndentingNewLine]", 
+  "]"}], "\[IndentingNewLine]", "n"}], "Input",
+ CellChangeTimes->{{3.5282453728994164`*^9, 3.5282453754525623`*^9}, {
+   3.5282455537017574`*^9, 3.5282455548528233`*^9}, {3.528245600833453*^9, 
+   3.5282456492422223`*^9}, 3.52824570549844*^9, {3.528245742529558*^9, 
+   3.528245884901701*^9}, {3.5282459400978584`*^9, 3.5282459428160133`*^9}, {
+   3.5282459809191933`*^9, 3.528246071677384*^9}, {3.528246186223936*^9, 
+   3.528246205747052*^9}, {3.528246259587132*^9, 3.5282462768381186`*^9}, {
+   3.52824634802719*^9, 3.5282463627850347`*^9}, {3.528551268799861*^9, 
+   3.528551288758647*^9}, {3.528551568025416*^9, 3.528551594645382*^9}}],
+
+Cell[BoxData["1.043618065`*^9"], "Output",
+ CellChangeTimes->{{3.5282460410466323`*^9, 3.5282460604647427`*^9}, 
+   3.528246149652844*^9, {3.5282461932263365`*^9, 3.5282462064620934`*^9}, {
+   3.528246269673709*^9, 3.5282462815073853`*^9}, {3.5282463592558327`*^9, 
+   3.5282463643241224`*^9}, {3.528543900711533*^9, 3.528543903736792*^9}, 
+   3.5285439729543867`*^9, {3.528551289650785*^9, 3.528551310946548*^9}, {
+   3.5285515692971773`*^9, 3.528551596716044*^9}}]
+}, Open  ]],
+
+Cell[TextData[{
+ StyleBox["Mathematica",
+  FontSlant->"Italic"],
+ " seems to be rounding this number, but it is unclear whether it is actually \
+rounding in memory or just displaying a rounded number.  The number seems to \
+be correct, however."
+}], "Text",
+ CellChangeTimes->{{3.5282461651427298`*^9, 3.5282461743622575`*^9}, {
+  3.528246230334459*^9, 3.5282462438582325`*^9}, {3.5282463777158885`*^9, 
+  3.5282463840132484`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+b) Time Comparison Between Lehmer Minimal Standard RNG and Mathematica\
+\[CloseCurlyQuote]s RandomReal[]\
+\>", "Section",
+ CellChangeTimes->{{3.528246430308897*^9, 3.528246451857129*^9}}],
+
+Cell["\<\
+Comparing how long it takes the Lehmer RNG coded above to calculate a random \
+number vs. Mathematica\[CloseCurlyQuote]s RandomReal[], both using the same \
+seed:\
+\>", "Text",
+ CellChangeTimes->{{3.5282468413644075`*^9, 3.5282468814637012`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "seed", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"seed", "=", "9890"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Timing", "[", 
+  RowBox[{"minStandardRNG", "[", "]"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"seed", "=", "9890"}], ";", 
+  RowBox[{"SeedRandom", "[", "seed", "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Timing", "[", 
+  RowBox[{"RandomReal", "[", "]"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.528246465308899*^9, 3.5282464664029613`*^9}, 
+   3.528246600921655*^9, {3.52824678598524*^9, 3.5282468303597784`*^9}, {
+   3.5282469494425893`*^9, 3.528246949677603*^9}, {3.5285439974568253`*^9, 
+   3.528543998135516*^9}, {3.5285513311157503`*^9, 3.528551349240252*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"0.00004600000011123484`", ",", "0.0774027919757193`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.5282468828417797`*^9, 3.5282469060661087`*^9}, {
+   3.52824693651685*^9, 3.5282469572910385`*^9}, {3.528543908530107*^9, 
+   3.528543998597578*^9}, {3.5285513159685173`*^9, 3.52855135659667*^9}, 
+   3.528551575515375*^9, 3.5285516322380667`*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"7.000000096013537`*^-6", ",", "0.8825757190631098`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.5282468828417797`*^9, 3.5282469060661087`*^9}, {
+   3.52824693651685*^9, 3.5282469572910385`*^9}, {3.528543908530107*^9, 
+   3.528543998597578*^9}, {3.5285513159685173`*^9, 3.52855135659667*^9}, 
+   3.528551575515375*^9, 3.528551632240453*^9}]
+}, Open  ]],
+
+Cell["\<\
+Thus we can see that RandomReal is faster by about a factor of 10\
+\>", "Text",
+ CellChangeTimes->{{3.5285463773569*^9, 3.528546446553255*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["c) Sub-Standard Lehmer RNG", "Section",
+ CellChangeTimes->{{3.5285464726089573`*^9, 3.528546489680498*^9}, {
+  3.6168851781747236`*^9, 3.61688517849994*^9}}],
+
+Cell["\<\
+Using the same module code from our Lehmer RNG but with the sub-standard \
+values a=78 and m=127:\
+\>", "Text",
+ CellChangeTimes->{{3.5285465495634003`*^9, 3.528546574381069*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"seed", "=", "1"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"subStandardRNG", "[", "]"}], ":=", "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"a", "=", "78"}], ",", 
+      RowBox[{"m", "=", "127"}]}], "}"}], ",", "\[IndentingNewLine]", 
+    "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"seed", "=", 
+      RowBox[{"Mod", "[", 
+       RowBox[{
+        RowBox[{"a", "*", "seed"}], ",", "m"}], "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"N", "[", 
+      RowBox[{"seed", "/", "m"}], "]"}]}]}], "\[IndentingNewLine]", 
+   "]"}]}]}], "Input",
+ CellChangeTimes->{{3.528546583594268*^9, 3.528546593400104*^9}, {
+   3.52855119598621*^9, 3.528551225495178*^9}, 3.5285513711469393`*^9, {
+   3.5285514645360613`*^9, 3.528551509478161*^9}}],
+
+Cell[BoxData["1"], "Output",
+ CellChangeTimes->{
+  3.52855122621089*^9, {3.5285513673758583`*^9, 3.5285513717658167`*^9}, {
+   3.528551465871526*^9, 3.528551509878709*^9}, 3.528551634557292*^9}]
+}, Open  ]],
+
+Cell["\<\
+We can show that this RNG is sub-standard by cycling through the sequence 400 \
+times and seeing that the period is 126:\
+\>", "Text",
+ CellChangeTimes->{{3.528549876048534*^9, 3.52854992430897*^9}, {
+  3.528550324576408*^9, 3.528550325400298*^9}, {3.528550355938047*^9, 
+  3.528550356087282*^9}, {3.528551712213262*^9, 3.528551715181076*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "seed", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"seed", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"data01", " ", "=", " ", 
+  RowBox[{"Table", "[", 
+   RowBox[{
+    RowBox[{"subStandardRNG", "[", "]"}], ",", 
+    RowBox[{"{", "400", "}"}]}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"ListPlot", "[", 
+  RowBox[{"data01", ",", 
+   RowBox[{"Frame", " ", "\[Rule]", " ", "True"}], ",", " ", 
+   RowBox[{"ImageSize", " ", "\[Rule]", " ", "600"}], ",", " ", 
+   RowBox[{"Background", " ", "\[Rule]", " ", "LightGray"}], ",", 
+   RowBox[{"GridLines", "\[Rule]", "Automatic"}], ",", 
+   RowBox[{"FrameLabel", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<Seed\>\"", ",", "\"\<Random Number\>\"", ",", 
+      "\"\<Plot of Sub-Standard Lehmer RNG values for seeds 1 through \
+400\>\""}], "}"}]}]}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"data01", "[", 
+  RowBox[{"[", "1", "]"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"data01", "[", 
+  RowBox[{"[", "127", "]"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.528549926637298*^9, 3.5285499808055277`*^9}, {
+   3.528550020583618*^9, 3.528550048108076*^9}, {3.528550132219707*^9, 
+   3.528550134066938*^9}, {3.528550211723612*^9, 3.528550214328603*^9}, {
+   3.528550261087202*^9, 3.52855029788531*^9}, {3.528550956593256*^9, 
+   3.528550986215806*^9}, {3.528551380357444*^9, 3.528551409753085*^9}, 
+   3.5285514482970953`*^9, 3.52855163881922*^9, {3.528551672890154*^9, 
+   3.528551682169845*^9}, {3.5285517182003*^9, 3.52855173332094*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "0.6141732283464567`", ",", "0.905511811023622`", ",", 
+   "0.6299212598425197`", ",", "0.13385826771653545`", ",", 
+   "0.4409448818897638`", ",", "0.3937007874015748`", ",", 
+   "0.7086614173228346`", ",", "0.2755905511811024`", ",", 
+   "0.49606299212598426`", ",", "0.6929133858267716`", ",", 
+   "0.047244094488188976`", ",", "0.6850393700787402`", ",", 
+   "0.4330708661417323`", ",", "0.7795275590551181`", ",", 
+   "0.8031496062992126`", ",", "0.6456692913385826`", ",", 
+   "0.36220472440944884`", ",", "0.25196850393700787`", ",", 
+   "0.6535433070866141`", ",", "0.9763779527559056`", ",", 
+   "0.15748031496062992`", ",", "0.28346456692913385`", ",", 
+   "0.11023622047244094`", ",", "0.5984251968503937`", ",", 
+   "0.6771653543307087`", ",", "0.8188976377952756`", ",", 
+   "0.8740157480314961`", ",", "0.1732283464566929`", ",", 
+   "0.5118110236220472`", ",", "0.9212598425196851`", ",", 
+   "0.8582677165354331`", ",", "0.9448818897637795`", ",", 
+   "0.7007874015748031`", ",", "0.6614173228346457`", ",", 
+   "0.5905511811023622`", ",", "0.06299212598425197`", ",", 
+   "0.9133858267716536`", ",", "0.2440944881889764`", ",", 
+   "0.03937007874015748`", ",", "0.07086614173228346`", ",", 
+   "0.5275590551181102`", ",", "0.14960629921259844`", ",", 
+   "0.6692913385826772`", ",", "0.2047244094488189`", ",", 
+   "0.968503937007874`", ",", "0.5433070866141733`", ",", 
+   "0.3779527559055118`", ",", "0.48031496062992124`", ",", 
+   "0.4645669291338583`", ",", "0.23622047244094488`", ",", 
+   "0.4251968503937008`", ",", "0.16535433070866143`", ",", 
+   "0.8976377952755905`", ",", "0.015748031496062992`", ",", 
+   "0.2283464566929134`", ",", "0.8110236220472441`", ",", 
+   "0.25984251968503935`", ",", "0.2677165354330709`", ",", 
+   "0.8818897637795275`", ",", "0.7874015748031497`", ",", 
+   "0.41732283464566927`", ",", "0.5511811023622047`", ",", 
+   "0.9921259842519685`", ",", "0.3858267716535433`", ",", 
+   "0.09448818897637795`", ",", "0.3700787401574803`", ",", 
+   "0.8661417322834646`", ",", "0.5590551181102362`", ",", 
+   "0.6062992125984252`", ",", "0.29133858267716534`", ",", 
+   "0.7244094488188977`", ",", "0.5039370078740157`", ",", 
+   "0.30708661417322836`", ",", "0.952755905511811`", ",", 
+   "0.31496062992125984`", ",", "0.5669291338582677`", ",", 
+   "0.2204724409448819`", ",", "0.1968503937007874`", ",", 
+   "0.3543307086614173`", ",", "0.6377952755905512`", ",", 
+   "0.7480314960629921`", ",", "0.3464566929133858`", ",", 
+   "0.023622047244094488`", ",", "0.84251968503937`", ",", 
+   "0.7165354330708661`", ",", "0.889763779527559`", ",", 
+   "0.4015748031496063`", ",", "0.3228346456692913`", ",", 
+   "0.18110236220472442`", ",", "0.12598425196850394`", ",", 
+   "0.8267716535433071`", ",", "0.4881889763779528`", ",", 
+   "0.07874015748031496`", ",", "0.14173228346456693`", ",", 
+   "0.05511811023622047`", ",", "0.2992125984251969`", ",", 
+   "0.33858267716535434`", ",", "0.4094488188976378`", ",", 
+   "0.937007874015748`", ",", "0.08661417322834646`", ",", 
+   "0.7559055118110236`", ",", "0.9606299212598425`", ",", 
+   "0.9291338582677166`", ",", "0.47244094488188976`", ",", 
+   "0.8503937007874016`", ",", "0.33070866141732286`", ",", 
+   "0.7952755905511811`", ",", "0.031496062992125984`", ",", 
+   "0.4566929133858268`", ",", "0.6220472440944882`", ",", 
+   "0.5196850393700787`", ",", "0.5354330708661418`", ",", 
+   "0.7637795275590551`", ",", "0.5748031496062992`", ",", 
+   "0.8346456692913385`", ",", "0.10236220472440945`", ",", 
+   "0.984251968503937`", ",", "0.7716535433070866`", ",", 
+   "0.1889763779527559`", ",", "0.7401574803149606`", ",", 
+   "0.7322834645669292`", ",", "0.11811023622047244`", ",", 
+   "0.2125984251968504`", ",", "0.5826771653543307`", ",", 
+   "0.44881889763779526`", ",", "0.007874015748031496`", ",", 
+   "0.6141732283464567`", ",", "0.905511811023622`", ",", 
+   "0.6299212598425197`", ",", "0.13385826771653545`", ",", 
+   "0.4409448818897638`", ",", "0.3937007874015748`", ",", 
+   "0.7086614173228346`", ",", "0.2755905511811024`", ",", 
+   "0.49606299212598426`", ",", "0.6929133858267716`", ",", 
+   "0.047244094488188976`", ",", "0.6850393700787402`", ",", 
+   "0.4330708661417323`", ",", "0.7795275590551181`", ",", 
+   "0.8031496062992126`", ",", "0.6456692913385826`", ",", 
+   "0.36220472440944884`", ",", "0.25196850393700787`", ",", 
+   "0.6535433070866141`", ",", "0.9763779527559056`", ",", 
+   "0.15748031496062992`", ",", "0.28346456692913385`", ",", 
+   "0.11023622047244094`", ",", "0.5984251968503937`", ",", 
+   "0.6771653543307087`", ",", "0.8188976377952756`", ",", 
+   "0.8740157480314961`", ",", "0.1732283464566929`", ",", 
+   "0.5118110236220472`", ",", "0.9212598425196851`", ",", 
+   "0.8582677165354331`", ",", "0.9448818897637795`", ",", 
+   "0.7007874015748031`", ",", "0.6614173228346457`", ",", 
+   "0.5905511811023622`", ",", "0.06299212598425197`", ",", 
+   "0.9133858267716536`", ",", "0.2440944881889764`", ",", 
+   "0.03937007874015748`", ",", "0.07086614173228346`", ",", 
+   "0.5275590551181102`", ",", "0.14960629921259844`", ",", 
+   "0.6692913385826772`", ",", "0.2047244094488189`", ",", 
+   "0.968503937007874`", ",", "0.5433070866141733`", ",", 
+   "0.3779527559055118`", ",", "0.48031496062992124`", ",", 
+   "0.4645669291338583`", ",", "0.23622047244094488`", ",", 
+   "0.4251968503937008`", ",", "0.16535433070866143`", ",", 
+   "0.8976377952755905`", ",", "0.015748031496062992`", ",", 
+   "0.2283464566929134`", ",", "0.8110236220472441`", ",", 
+   "0.25984251968503935`", ",", "0.2677165354330709`", ",", 
+   "0.8818897637795275`", ",", "0.7874015748031497`", ",", 
+   "0.41732283464566927`", ",", "0.5511811023622047`", ",", 
+   "0.9921259842519685`", ",", "0.3858267716535433`", ",", 
+   "0.09448818897637795`", ",", "0.3700787401574803`", ",", 
+   "0.8661417322834646`", ",", "0.5590551181102362`", ",", 
+   "0.6062992125984252`", ",", "0.29133858267716534`", ",", 
+   "0.7244094488188977`", ",", "0.5039370078740157`", ",", 
+   "0.30708661417322836`", ",", "0.952755905511811`", ",", 
+   "0.31496062992125984`", ",", "0.5669291338582677`", ",", 
+   "0.2204724409448819`", ",", "0.1968503937007874`", ",", 
+   "0.3543307086614173`", ",", "0.6377952755905512`", ",", 
+   "0.7480314960629921`", ",", "0.3464566929133858`", ",", 
+   "0.023622047244094488`", ",", "0.84251968503937`", ",", 
+   "0.7165354330708661`", ",", "0.889763779527559`", ",", 
+   "0.4015748031496063`", ",", "0.3228346456692913`", ",", 
+   "0.18110236220472442`", ",", "0.12598425196850394`", ",", 
+   "0.8267716535433071`", ",", "0.4881889763779528`", ",", 
+   "0.07874015748031496`", ",", "0.14173228346456693`", ",", 
+   "0.05511811023622047`", ",", "0.2992125984251969`", ",", 
+   "0.33858267716535434`", ",", "0.4094488188976378`", ",", 
+   "0.937007874015748`", ",", "0.08661417322834646`", ",", 
+   "0.7559055118110236`", ",", "0.9606299212598425`", ",", 
+   "0.9291338582677166`", ",", "0.47244094488188976`", ",", 
+   "0.8503937007874016`", ",", "0.33070866141732286`", ",", 
+   "0.7952755905511811`", ",", "0.031496062992125984`", ",", 
+   "0.4566929133858268`", ",", "0.6220472440944882`", ",", 
+   "0.5196850393700787`", ",", "0.5354330708661418`", ",", 
+   "0.7637795275590551`", ",", "0.5748031496062992`", ",", 
+   "0.8346456692913385`", ",", "0.10236220472440945`", ",", 
+   "0.984251968503937`", ",", "0.7716535433070866`", ",", 
+   "0.1889763779527559`", ",", "0.7401574803149606`", ",", 
+   "0.7322834645669292`", ",", "0.11811023622047244`", ",", 
+   "0.2125984251968504`", ",", "0.5826771653543307`", ",", 
+   "0.44881889763779526`", ",", "0.007874015748031496`", ",", 
+   "0.6141732283464567`", ",", "0.905511811023622`", ",", 
+   "0.6299212598425197`", ",", "0.13385826771653545`", ",", 
+   "0.4409448818897638`", ",", "0.3937007874015748`", ",", 
+   "0.7086614173228346`", ",", "0.2755905511811024`", ",", 
+   "0.49606299212598426`", ",", "0.6929133858267716`", ",", 
+   "0.047244094488188976`", ",", "0.6850393700787402`", ",", 
+   "0.4330708661417323`", ",", "0.7795275590551181`", ",", 
+   "0.8031496062992126`", ",", "0.6456692913385826`", ",", 
+   "0.36220472440944884`", ",", "0.25196850393700787`", ",", 
+   "0.6535433070866141`", ",", "0.9763779527559056`", ",", 
+   "0.15748031496062992`", ",", "0.28346456692913385`", ",", 
+   "0.11023622047244094`", ",", "0.5984251968503937`", ",", 
+   "0.6771653543307087`", ",", "0.8188976377952756`", ",", 
+   "0.8740157480314961`", ",", "0.1732283464566929`", ",", 
+   "0.5118110236220472`", ",", "0.9212598425196851`", ",", 
+   "0.8582677165354331`", ",", "0.9448818897637795`", ",", 
+   "0.7007874015748031`", ",", "0.6614173228346457`", ",", 
+   "0.5905511811023622`", ",", "0.06299212598425197`", ",", 
+   "0.9133858267716536`", ",", "0.2440944881889764`", ",", 
+   "0.03937007874015748`", ",", "0.07086614173228346`", ",", 
+   "0.5275590551181102`", ",", "0.14960629921259844`", ",", 
+   "0.6692913385826772`", ",", "0.2047244094488189`", ",", 
+   "0.968503937007874`", ",", "0.5433070866141733`", ",", 
+   "0.3779527559055118`", ",", "0.48031496062992124`", ",", 
+   "0.4645669291338583`", ",", "0.23622047244094488`", ",", 
+   "0.4251968503937008`", ",", "0.16535433070866143`", ",", 
+   "0.8976377952755905`", ",", "0.015748031496062992`", ",", 
+   "0.2283464566929134`", ",", "0.8110236220472441`", ",", 
+   "0.25984251968503935`", ",", "0.2677165354330709`", ",", 
+   "0.8818897637795275`", ",", "0.7874015748031497`", ",", 
+   "0.41732283464566927`", ",", "0.5511811023622047`", ",", 
+   "0.9921259842519685`", ",", "0.3858267716535433`", ",", 
+   "0.09448818897637795`", ",", "0.3700787401574803`", ",", 
+   "0.8661417322834646`", ",", "0.5590551181102362`", ",", 
+   "0.6062992125984252`", ",", "0.29133858267716534`", ",", 
+   "0.7244094488188977`", ",", "0.5039370078740157`", ",", 
+   "0.30708661417322836`", ",", "0.952755905511811`", ",", 
+   "0.31496062992125984`", ",", "0.5669291338582677`", ",", 
+   "0.2204724409448819`", ",", "0.1968503937007874`", ",", 
+   "0.3543307086614173`", ",", "0.6377952755905512`", ",", 
+   "0.7480314960629921`", ",", "0.3464566929133858`", ",", 
+   "0.023622047244094488`", ",", "0.84251968503937`", ",", 
+   "0.7165354330708661`", ",", "0.889763779527559`", ",", 
+   "0.4015748031496063`", ",", "0.3228346456692913`", ",", 
+   "0.18110236220472442`", ",", "0.12598425196850394`", ",", 
+   "0.8267716535433071`", ",", "0.4881889763779528`", ",", 
+   "0.07874015748031496`", ",", "0.14173228346456693`", ",", 
+   "0.05511811023622047`", ",", "0.2992125984251969`", ",", 
+   "0.33858267716535434`", ",", "0.4094488188976378`", ",", 
+   "0.937007874015748`", ",", "0.08661417322834646`", ",", 
+   "0.7559055118110236`", ",", "0.9606299212598425`", ",", 
+   "0.9291338582677166`", ",", "0.47244094488188976`", ",", 
+   "0.8503937007874016`", ",", "0.33070866141732286`", ",", 
+   "0.7952755905511811`", ",", "0.031496062992125984`", ",", 
+   "0.4566929133858268`", ",", "0.6220472440944882`", ",", 
+   "0.5196850393700787`", ",", "0.5354330708661418`", ",", 
+   "0.7637795275590551`", ",", "0.5748031496062992`", ",", 
+   "0.8346456692913385`", ",", "0.10236220472440945`", ",", 
+   "0.984251968503937`", ",", "0.7716535433070866`", ",", 
+   "0.1889763779527559`", ",", "0.7401574803149606`", ",", 
+   "0.7322834645669292`", ",", "0.11811023622047244`", ",", 
+   "0.2125984251968504`", ",", "0.5826771653543307`", ",", 
+   "0.44881889763779526`", ",", "0.007874015748031496`", ",", 
+   "0.6141732283464567`", ",", "0.905511811023622`", ",", 
+   "0.6299212598425197`", ",", "0.13385826771653545`", ",", 
+   "0.4409448818897638`", ",", "0.3937007874015748`", ",", 
+   "0.7086614173228346`", ",", "0.2755905511811024`", ",", 
+   "0.49606299212598426`", ",", "0.6929133858267716`", ",", 
+   "0.047244094488188976`", ",", "0.6850393700787402`", ",", 
+   "0.4330708661417323`", ",", "0.7795275590551181`", ",", 
+   "0.8031496062992126`", ",", "0.6456692913385826`", ",", 
+   "0.36220472440944884`", ",", "0.25196850393700787`", ",", 
+   "0.6535433070866141`", ",", "0.9763779527559056`", ",", 
+   "0.15748031496062992`", ",", "0.28346456692913385`"}], "}"}]], "Output",
+ CellChangeTimes->{{3.52855137707701*^9, 3.5285514144711657`*^9}, {
+  3.52855144856604*^9, 3.528551511181449*^9}, {3.528551636844631*^9, 
+  3.528551639164361*^9}, {3.528551673742882*^9, 3.52855168248835*^9}, {
+  3.5285517291986847`*^9, 3.528551733554781*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   {Hue[0.67, 0.6, 0.6], PointBox[CompressedData["
+1:eJxd2HuoHOUZBvBVRKQUWUSKFCmjhBBCkG0aYxpj8hpjzD2bk5OTcz/f2bO7
+Z+87Ozs7O2rUEZFSSukWkbaU0imtaLGl673ex/td10u8X8ZLtF5itoiIV5zd
+PCM8X/4Jb759T3af/d73x5zTMvWR3LGJRKJzTCIx+Pvon/6Gj+y1f9l17bsb
+8A+y/q/PfPDZl5+gPkF+dOXGv6WXvYc6KVuXnPTrTaffh/pkOfFXD7xtrnkd
+9Smyc+lVj2VXvoL6VLn+YOmWyX+/j9qQ4qqf/nbz359Ffbr0v/j620vvfQv1
+EvnNQ5kbxlfEr18qPz7+ivtU6jrUy+Tiu2f/89LHh1Avl0+dO9+o3fYa6hWy
+7me/e+Td//8P9RlSXf3np/I3fYg6Jcuv3nbNyD/jz/NzefKQdfv0GS+hXikn
+HHfs5WL0UP9CBuk8/2H8+lXSi9I5sP4I6jORz4OoV0sUzu+3LHkO9VnI5y7U
+a+Tx7Mo/7Vga5/1LKUfpjF0ff561MginsOoj1GfLd1E4R774GPU65PMw6nPk
+lGFAIer1Mhel8/lFh1FvkDejcA47cb/IIB133adHa09kkM4rlTjvc2V7lM7o
+crwf71yJwvnDE4fewflG5NPF+UbZHaVjr43/v/OQzzM4Pw/5/APnm5DPjTjf
+JGtOHSQUv//zkc8DOD9fpqJ0DpbifDYjn8dxvlkG6Xz9LT5P4gKZWPGTKKK3
+cX4B7s/LON8iw3jufhPnW6Q+iOfON3C+Ffk8jfOt8vQgntXx/dqGfB7C+TYZ
+pGPdHs/LduTTwfl25PMUznfIJcMBw330dsiykwcJxfdtJ+YL8+HtxP2Jf/4u
+zFfcv0uG8dzyKs53Y77iz78b8xXf17QM47kBeUga+fwXr0/LJ1E60YQdrYM0
+5iu+P3vkwuGA4efLHnm1Mhgw3Gdvj0ThRBOG+x/swXx9gP4R5IPvW0bk6P55
+Hv0jMlw/B/B9BiO4Py+gfy/uD+6j7EU+T6J/L/J5DP17sX9eRP+oDLdPAfMs
+o/LNYPscwfvzRjFfeH0winz+iP59Mlw/n2M+ZZ8Mt89hzI+3T4brx8X3FezD
+/on34Rj2Dz6PjCGfR9A/hnwC9I/JcP3Y8T7Yj/nCvpT9yOdm9O9HPvejfz/y
++Rf6xzFfyFvGsX8Oon8c84X7FIzLZcMBi+d7Avnciv4J5IN9601gvuLvbwLz
+FfdPYr4wfzKJ+cL98iYxX3g/waTMDAcs3t9TyMdH/xTmC/PrTclXBwYDhvsY
+TGG+4v0yjfmK7++0DNePGb//aYnCiS4Q7lcwjfmK859BPnegf0bCwfq5FPPl
+zWC+8POCGeTzKPpnMV+4bzIrrw+2Ty2+f7PI5x70zyKfJ9A/h/mK7/8c9g/8
+9eaQj4f+OWHfFftuKPZdFPuuFPvuKfbdV+x7oNj3UGm+z7Pvxjz7LvPsu5pn
+37159t2fZ9+DefY9nNd8z7DvRoZ9lwz7rjLsu5dh3/0M+x5k2Pcwo/m+wL4b
+C+y7LLDvaoF99xbYd3+BfQ8W2PdwQfM9y74bWfZdsuy7yrLvXpZ997Pse5Bl
+38Os5nuOfTdy7Lvk2HeVY9+9HPvu59j3IMe+hznN9zz7buTZd8mz7yrPvnt5
+9t3Ps+9Bnn0P85rvi+y7sci+yyL7rhbZd2+RffcX2fdgkX0PF9n3RIF9Nwrs
+uxTYd1XQfC+w736BfQ8K7HtYYN8TRfbdKLLvUmTfVVHzvci++0X2PSiy72GR
+fU+U2HejxL5LiX1XJc33Evvul9j3oMS+hyX2PVFm340y+y5l9l2VNd/L7Ltf
+Zt+DMvseltn3RIV9Nyrsu1TYd1XRfK+w736FfQ8q7HtYYd8TVfbdqLLvUmXf
+VVXzvcq++1X2Paiy72GVfU/U2Hejxr5LjX1XNc33Gvvu19j3oMa+hzX2PVFn
+3406+y519l3VNd/r7LtfZ9+DOvse1rXnd5N9T5rsu2Gy7ymTfReTfU+b7Lsy
+2XfTZN89k33vmOy7b7LvXVPz3WTfeyb7Hprse9/Unt8b7Huywb4bDfY91WDf
+pcG+pxvsu2qw72aDffca7Hunwb77Dfa929B8b7DvvQb7HjbY935De3632Pek
+xb4bFvuesth3sdj3tMW+K4t9Ny323bPY947FvvsW+961NN8t9r1nse+hxb73
+Le35vcm+J5vsu9Fk31NN9l2a7Hu6yb6rJvtuNtl3r8m+d5rsu99k37tNzfcm
++95rsu9hk33vN7Xnd5t9T9rsu2Gz7ymbfRebfU/b7Luy2XfTZt89m33v2Oy7
+b7PvXVvz3Wbfezb7Htrse9/Wnt9b7Huyxb4bLfY91WLfpcW+p1vsu2qx72aL
+ffda7Hunxb77Lfa929J8b7HvvRb7HrbY935Le3532Pekw74bDvuecth3cdj3
+tMO+K4d9Nx323XPY947DvvsO+951NN8d9r3nsO+hw773He35vc2+J9vsu9Fm
+31Nt9l3a7Hu6zb6rNvtuttl3r82+d9rsu99m37ttzfc2+95rs+9hm33vt7Xf
+z7vse9Jl3w2XfU+57Lu47HvaZd+Vy76brvb87rLvHZd99132veuy74HLvvdc
+9j102fe+q/1+/sIffP8eOUQVBw==
+     "]]}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesOrigin->{0, 0},
+  Background->GrayLevel[0.85],
+  Frame->True,
+  FrameLabel->{
+    FormBox["\"Seed\"", TraditionalForm], 
+    FormBox["\"Random Number\"", TraditionalForm], 
+    FormBox[
+    "\"Plot of Sub-Standard Lehmer RNG values for seeds 1 through 400\"", 
+     TraditionalForm]},
+  GridLines->Automatic,
+  ImageSize->600,
+  PlotRange->{{0., 400.}, {0., 0.9921259842519685}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{
+    Scaled[0.02], 
+    Scaled[0.02]}]], "Output",
+ CellChangeTimes->{{3.52855137707701*^9, 3.5285514144711657`*^9}, {
+  3.52855144856604*^9, 3.528551511181449*^9}, {3.528551636844631*^9, 
+  3.528551639164361*^9}, {3.528551673742882*^9, 3.52855168248835*^9}, {
+  3.5285517291986847`*^9, 3.528551733563512*^9}}],
+
+Cell[BoxData["0.6141732283464567`"], "Output",
+ CellChangeTimes->{{3.52855137707701*^9, 3.5285514144711657`*^9}, {
+  3.52855144856604*^9, 3.528551511181449*^9}, {3.528551636844631*^9, 
+  3.528551639164361*^9}, {3.528551673742882*^9, 3.52855168248835*^9}, {
+  3.5285517291986847`*^9, 3.528551733571637*^9}}],
+
+Cell[BoxData["0.6141732283464567`"], "Output",
+ CellChangeTimes->{{3.52855137707701*^9, 3.5285514144711657`*^9}, {
+  3.52855144856604*^9, 3.528551511181449*^9}, {3.528551636844631*^9, 
+  3.528551639164361*^9}, {3.528551673742882*^9, 3.52855168248835*^9}, {
+  3.5285517291986847`*^9, 3.52855173357295*^9}}]
+}, Open  ]],
+
+Cell["\<\
+It is hard to see directly in the data, but using the plot to guide us we can \
+see that the sub standard RNG starts returning similar values at around 100.  \
+If we delve into the table we eventually run into the 126th output, which is \
+the same as the first output.  Thus the period is \
+\>", "Text",
+ CellChangeTimes->{{3.52855022157167*^9, 3.528550241826674*^9}, {
+  3.528550304588086*^9, 3.528550320280189*^9}, {3.5285516511119623`*^9, 
+  3.528551653695035*^9}, {3.528551688725503*^9, 3.528551703420875*^9}, {
+  3.528551745379912*^9, 3.52855178634632*^9}}],
+
+Cell["\<\
+We can also find the period by generating a random walk using the sub \
+standard RNG (random walk code taken from Bill Titus\[CloseCurlyQuote] WK01 \
+Notebook):\
+\>", "Text",
+ CellChangeTimes->{{3.528550327727866*^9, 3.52855038605408*^9}, {
+  3.528550682471169*^9, 3.528550699766781*^9}, {3.528551891203701*^9, 
+  3.528551904335372*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", 
+  RowBox[{
+  "steps", ",", "xValues", ",", "tValues", ",", "rwList", ",", "seed"}], 
+  "]"}], "\n", 
+ RowBox[{
+  RowBox[{"seed", "=", "1"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"steps", "[", "n_", "]"}], ":=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"2", " ", 
+       RowBox[{"subStandardRNG", "[", "]"}]}], "-", "1"}], ",", 
+     RowBox[{"{", "n", "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"xValues", "[", "n_", "]"}], ":=", 
+   RowBox[{"FoldList", "[", 
+    RowBox[{"Plus", ",", "0", ",", 
+     RowBox[{"steps", "[", "n", "]"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"tValues", "[", "n_", "]"}], ":=", 
+   RowBox[{"Table", "[", 
+    RowBox[{"i", ",", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "0", ",", "n"}], "}"}]}], "]"}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rwList", "[", "n_", "]"}], ":=", 
+   RowBox[{"Transpose", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"tValues", "[", "n", "]"}], ",", 
+      RowBox[{"xValues", "[", "n", "]"}]}], "}"}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.5285507138396463`*^9, 3.528550741496162*^9}, {
+   3.528550849757455*^9, 3.52855085777206*^9}, 3.528551913479662*^9, {
+   3.528552353062188*^9, 3.5285523598536367`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"data02", " ", "=", " ", 
+   RowBox[{"rwList", "[", "400", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ListPlot", "[", 
+  RowBox[{"data02", ",", 
+   RowBox[{"Frame", " ", "\[Rule]", " ", "True"}], ",", " ", 
+   RowBox[{"ImageSize", " ", "\[Rule]", " ", "600"}], ",", " ", 
+   RowBox[{"Background", " ", "\[Rule]", " ", "LightGray"}], ",", 
+   RowBox[{"GridLines", "\[Rule]", "Automatic"}], ",", 
+   RowBox[{"FrameLabel", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<Step\>\"", ",", "\"\<Position\>\"", ",", 
+      "\"\<Plot of 400 step random walk using sub-standard RNG\>\""}], 
+     "}"}]}], ",", 
+   RowBox[{"Joined", "\[Rule]", "True"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.5285504656633377`*^9, 3.528550555973283*^9}, 
+   3.52855060845315*^9, {3.528550751366658*^9, 3.528550763118022*^9}, {
+   3.528550813604698*^9, 3.5285508280201473`*^9}, 3.528550864610958*^9, 
+   3.5285521734980593`*^9}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {}, 
+   {Hue[0.67, 0.6, 0.6], LineBox[CompressedData["
+1:eJxt13twXFUdB/Db0hZU1KV2MFM6zpWpTMVMXUstASv5UkpISxq2SZqmSZPe
+bDab1ya5+14YhrkIjtXquIwKooNeBKQdRVcZEQYcblEGEMFVQaZoy0VsEctj
+sWDlEXXP2d8693vH/tP55ezvPH/nfOZ+ND7fM77YMIwbFhmG+v///6u1x+78
+w0u5C59olz9gzYr3fn7TrTWJT8O6m7vO+dpjb0gcwd7NZ9/QufovEq9A602P
+H83c92eJW/DlR154vbTxSYlX4YJbuusj/FViE3s7bvvd5PpfS3w2Ouu9J9Y9
+JvFq7O879xtb72j2fw5a61HPgacebMRrYCy77qAV3S/t56L8cPwnA633SHur
+jH9E2tciphf0usRRXPWLkR8/c/xNiT8FK9py+rLrmu3r8GhCrfgFic/Dxu/+
+9sUTb70s8XrM/fxPrxTuX5D406gMtJ657+F/SLwBL72pRnhR4vMRre9mbM3t
+Mr82LNHxr6T9Anz4dLUgX+IL8U213Ylmf5/BjWp7d/9b4o146+qL1Iwk/izO
++KI6kOb5XIS2VR/4wi+fN9CI26GP95ZlEkPm//5G7AAf+arasIi0X4y07uAM
+ab8YevlXL5f2TbjmwedeO/lOM38T1Ond3NVsvwSR05YsvhbSn3MJOlcvr8/w
+PdK+GWX9h8XSvhk/7P/B09M/k9i4FF/S9fF2Yz3OpTh6Qq34P7K+DuzV5/1P
+ae/A7T0H6hXTzL8M1cn1K7/ScYr0fxl6VTn1LJL2TrSbaoYSO504S22X3dyv
+LVip439J/1tw7UFVITKesRX767MdvOuYtG/F4vpqzYj83rgcm/V6n5f2y2Es
+VT9w5Py7cKx+Gt13Sn05XWjTvz8o+dvQc4da0NON3zvbcKxw/+H6mUl7N5ap
+7TXlfjrduE+X89+l/Qrs0/X/qrRfgXvUcR9u1k8Mv0nefSi14Z1GjBjO0ucv
+9e3EcKquT7mvXgz14lt70+PN+7Idx3V9n5T87dDHcab052xHffPrByj16G3H
+Md2BtBs9eFWvpzl+D8ZU+j7p3+mB2s36ATXOw+uBOo22Vc3590KXlynnhV48
+pcq7W+bj9OJJvb7jMn4vrtyoKlzOw+jDXbreZL/QB10+W5vj96FF30fZX69P
+3rufSv4OvE+/P3+T/B3w9AMi99HZgSP127FwjdSrtwMr9qkdelfy+3FA14/U
+E/rRpi+g9Of0wztFrc+V/H4U9Ht1VPJ3okPXh8TYCV89D2sfkXrZifX6PX65
+EXs78XF9Qd+V+htAXL93i7xG/gBOVctpWdKInQEk9HksbcTeALao67hyQfJ3
+oUuPL+3YhQ61PculP2cXDqc2fPuJ5AkZfxfu1ev9o+QP4lv6fj/biDGI7+j3
+/vey/kFYjfdd8gfRp57XePP8htCvvTgk+UO49xlVkUdk/UNwG/5I/hCshi8y
+/m606PrxJH83Emq6dx+S8euxej5uk/G83XjOVg9i870dxkO6vuQ+Yhhl/f41
+36NhPKCexwWpV28Y7bcqgZr3ZwSf0Ocj9YARXK+u24rFaOSP4O0F/cJK/giG
+1PW+6hXJ34N+vR/iFfbgWV1vr8n4exr9GI8+0Mjfgzby3cLHgr6bFj4Z9B0W
+Phf03bJgBn13LOSCvrsWzgv67lmwg777FqLk+yi+F/TdHEVb0HeMwl0a8N0a
+hRf03RmFE/TdHcW2oO/eKIpB3/1RDJPvcTwU9N2MY0PQd8QxE/TdiuNHQd+d
+OI4GfXfjsIO+e3G8cX3Adz+OD5HvY7gx6Ls5hq8HfccYTgZ9t8bwwaDvzhjO
+D/rujuH7Qd+9MfbdHwv5nmDfzQT7jgT7biXYdyfBvrsJ9t1LsO9+IuT7OPtu
+jrPvGGffrXH23Rln391x9t0bZ9/98ZDvSfbdTLLvSLLvVpJ9d5Lsu5tk370k
+++4nQ75PsO/mBPuOCfbdmmDfnQn23Z1g370J9t2fYN+NSfbdnGTfMcm+W5Mh
+3yfZd3eSffcm2Xd/kn03pth3c4p9xxT7bk2FfJ9i390p9t2bYt/9KfbdmGbf
+zWn2HdPsuzUd8n2afXen2Xdvmn33p9l3Y4Z9N2fYd8yw79ZMyPcZ9t2dYd+9
+Gfbdn2HfjRT7bqbYd6TYdysV8j3Fvrsp9t1Lse9+in03Ztl3c5Z9xyz7bs2G
+fJ9l391Z9t2bZd/9WfbdmGPfzTn2HXPsuzUX8n2OfXfn2Hdvjn3359h3Y559
+N+fZd8yz79Z8yPd56Ud8d+fZd2+efffn2XfDZt8jNvtu2ux71GbfYbPvMZt9
+t2z23bbZd8dm38s2++7a7HvFDvlus+9Vm333bfa9ZrPvRpp9j6TZdzPNvkfT
+7DvS7Hsszb5bafbdTrPvTpp9L6fZdzfNvlfSId/T7Hs1zb77afa9lg59v2fY
+90iGfTcz7Hs0w74jw77HMuy7lWHf7Qz77mTY93KGfXcz7HslE/I9w75XM+y7
+n2Hfa5nQ93uWfY9k2Xczy75Hs+w7sux7LMu+W1n23c6y706WfS9n2Xc3y75X
+siHfs+x7Ncu++1n2vZYNfb/n2PdIjn03c+x7NMe+I8e+x3Lsu5Vj3+0c++7k
+2Pdyjn13c+x7JRfyPce+V3Psu59j32u50Pd7nn2P5Nl3M8++R/PsO/LseyzP
+vlt59t3Os+9Onn0v59l3N8++V/Ih3/PsezXPvvt59r2WD32/F9j3SIF9Nwvs
+e7TAvqPAvscK7LtVYN/tAvvuFNj3coF9dwvse6UQ8r3AvlcL7LtfYN9rhdD3
+e5F9jxTZd7PIvkeL7DuK7HusyL5bRfbdLrLvTpF9LxfZd7fY6Kfpe6UY8r3I
+vleL7LtfZN9rRfbdKLHvkRL7bpbY92iJfUeJfY+V2HerxL7bpdD3e4l9L5fY
+d7fEvldK7LtXYt+rJfbdL7HvtRL7blz5P9//C6r0sBg=
+     "]]}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesOrigin->{0, 0},
+  Background->GrayLevel[0.85],
+  Frame->True,
+  FrameLabel->{
+    FormBox["\"Step\"", TraditionalForm], 
+    FormBox["\"Position\"", TraditionalForm], 
+    FormBox[
+    "\"Plot of 400 step random walk using sub-standard RNG\"", 
+     TraditionalForm]},
+  GridLines->Automatic,
+  ImageSize->600,
+  PlotRange->{{0., 400.}, {-2.692913385826772, 4.622047244094488}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{
+    Scaled[0.02], 
+    Scaled[0.02]}]], "Output",
+ CellChangeTimes->{
+  3.528550561646587*^9, {3.52855060914462*^9, 3.528550630421929*^9}, {
+   3.528550764267653*^9, 3.528550778906905*^9}, {3.5285508161203547`*^9, 
+   3.5285508293633842`*^9}, {3.528550861670385*^9, 3.528550864924099*^9}, 
+   3.5285520336535683`*^9, 3.52855217412766*^9, {3.5285523420108633`*^9, 
+   3.5285523622381897`*^9}}]
+}, Open  ]],
+
+Cell["\<\
+In addition to once again seeing that the function has a period of 126, it \
+should be noted that there appears to be some kind of inversion event \
+happening somewhere in period, as can be seen by the two very large and \
+suspiciously symmetrical peaks at around 40 and 100.  That, in addition to \
+the fact that the size of these peaks indicates that the RNG gave a number \
+greater than or less than 0.5 almost 15 times in row, seems to indicate that \
+this RNG has flaws beyond its short period.\
+\>", "Text",
+ CellChangeTimes->{{3.5285523115959682`*^9, 3.528552551154867*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["d) Chi Square Test", "Section",
+ CellChangeTimes->{{3.528552555580559*^9, 3.528552563298175*^9}}],
+
+Cell["\<\
+We will now assess the randomness of each of the three RNGs we have discussed \
+- minStandardRNG, RandomReal, and subStandardRNG - using a chi-square test.\
+\>", "Text",
+ CellChangeTimes->{{3.528552754454146*^9, 3.52855279144319*^9}}],
+
+Cell["\<\
+First, finding the distribution of values between 0 and 1 generated by these \
+RNGs, with 100 bins between 0 and 1:\
+\>", "Text",
+ CellChangeTimes->{{3.5285528062433577`*^9, 3.528552825889843*^9}, {
+  3.528552872000731*^9, 3.528552902831523*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"minStandardBins", "=", 
+  RowBox[{"BinCounts", "[", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"minStandardRNG", "[", "]"}], ",", 
+      RowBox[{"{", "10000", "}"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"0", ",", "1", ",", "0.01"}], "}"}]}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"randomRealBins", "=", 
+  RowBox[{"BinCounts", "[", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"RandomReal", "[", "]"}], ",", 
+      RowBox[{"{", "10000", "}"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"0", ",", "1", ",", "0.01"}], "}"}]}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"subStandardBins", "=", 
+  RowBox[{"BinCounts", "[", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"subStandardRNG", "[", "]"}], ",", 
+      RowBox[{"{", "10000", "}"}]}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"0", ",", "1", ",", "0.01"}], "}"}]}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.5285526135626907`*^9, 3.528552741999268*^9}, {
+  3.5285528286044283`*^9, 3.5285528664749813`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "106", ",", "91", ",", "106", ",", "89", ",", "104", ",", "105", ",", "95", 
+   ",", "76", ",", "99", ",", "99", ",", "103", ",", "101", ",", "100", ",", 
+   "99", ",", "85", ",", "104", ",", "115", ",", "96", ",", "106", ",", "81", 
+   ",", "102", ",", "117", ",", "110", ",", "84", ",", "88", ",", "94", ",", 
+   "84", ",", "92", ",", "101", ",", "95", ",", "89", ",", "108", ",", "107", 
+   ",", "105", ",", "100", ",", "94", ",", "101", ",", "96", ",", "121", ",", 
+   "90", ",", "110", ",", "106", ",", "96", ",", "103", ",", "93", ",", "101",
+    ",", "91", ",", "91", ",", "122", ",", "112", ",", "105", ",", "81", ",", 
+   "107", ",", "102", ",", "85", ",", "101", ",", "90", ",", "88", ",", "94", 
+   ",", "90", ",", "96", ",", "105", ",", "93", ",", "107", ",", "94", ",", 
+   "129", ",", "108", ",", "99", ",", "102", ",", "104", ",", "95", ",", "91",
+    ",", "121", ",", "99", ",", "115", ",", "107", ",", "109", ",", "97", ",",
+    "88", ",", "103", ",", "113", ",", "108", ",", "92", ",", "102", ",", 
+   "103", ",", "105", ",", "113", ",", "123", ",", "106", ",", "84", ",", 
+   "108", ",", "100", ",", "94", ",", "94", ",", "101", ",", "108", ",", "98",
+    ",", "82", ",", "98", ",", "100"}], "}"}]], "Output",
+ CellChangeTimes->{{3.5285527142917128`*^9, 3.528552744143093*^9}, {
+   3.528552860758074*^9, 3.528552866982418*^9}, 3.5285537353152037`*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "94", ",", "113", ",", "98", ",", "100", ",", "107", ",", "118", ",", "101",
+    ",", "107", ",", "97", ",", "114", ",", "93", ",", "100", ",", "92", ",", 
+   "109", ",", "79", ",", "102", ",", "73", ",", "107", ",", "92", ",", "91", 
+   ",", "105", ",", "94", ",", "97", ",", "104", ",", "106", ",", "105", ",", 
+   "103", ",", "100", ",", "100", ",", "86", ",", "95", ",", "114", ",", 
+   "111", ",", "101", ",", "111", ",", "95", ",", "86", ",", "98", ",", "114",
+    ",", "88", ",", "94", ",", "114", ",", "100", ",", "111", ",", "94", ",", 
+   "94", ",", "85", ",", "111", ",", "106", ",", "91", ",", "96", ",", "118", 
+   ",", "97", ",", "102", ",", "101", ",", "121", ",", "118", ",", "74", ",", 
+   "103", ",", "104", ",", "106", ",", "84", ",", "87", ",", "87", ",", "100",
+    ",", "87", ",", "104", ",", "77", ",", "99", ",", "104", ",", "102", ",", 
+   "97", ",", "104", ",", "95", ",", "111", ",", "89", ",", "96", ",", "94", 
+   ",", "111", ",", "109", ",", "111", ",", "107", ",", "97", ",", "99", ",", 
+   "104", ",", "102", ",", "95", ",", "112", ",", "91", ",", "108", ",", 
+   "101", ",", "97", ",", "98", ",", "99", ",", "96", ",", "101", ",", "83", 
+   ",", "110", ",", "92", ",", "120"}], "}"}]], "Output",
+ CellChangeTimes->{{3.5285527142917128`*^9, 3.528552744143093*^9}, {
+   3.528552860758074*^9, 3.528552866982418*^9}, 3.528553735341522*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "80", ",", "79", ",", "79", ",", "159", ",", "79", ",", "80", ",", "79", 
+   ",", "159", ",", "80", ",", "79", ",", "80", ",", "159", ",", "80", ",", 
+   "80", ",", "159", ",", "79", ",", "79", ",", "79", ",", "160", ",", "79", 
+   ",", "79", ",", "80", ",", "158", ",", "79", ",", "79", ",", "158", ",", 
+   "79", ",", "79", ",", "79", ",", "159", ",", "79", ",", "79", ",", "80", 
+   ",", "160", ",", "79", ",", "79", ",", "79", ",", "158", ",", "79", ",", 
+   "79", ",", "160", ",", "79", ",", "79", ",", "79", ",", "160", ",", "80", 
+   ",", "79", ",", "80", ",", "159", ",", "79", ",", "79", ",", "159", ",", 
+   "79", ",", "80", ",", "79", ",", "158", ",", "79", ",", "80", ",", "80", 
+   ",", "158", ",", "79", ",", "80", ",", "160", ",", "79", ",", "79", ",", 
+   "79", ",", "158", ",", "79", ",", "79", ",", "79", ",", "158", ",", "79", 
+   ",", "79", ",", "80", ",", "159", ",", "80", ",", "80", ",", "159", ",", 
+   "79", ",", "80", ",", "79", ",", "158", ",", "80", ",", "80", ",", "79", 
+   ",", "159", ",", "79", ",", "79", ",", "159", ",", "79", ",", "80", ",", 
+   "79", ",", "159", ",", "80", ",", "79", ",", "79", ",", "159", ",", "79", 
+   ",", "80", ",", "79"}], "}"}]], "Output",
+ CellChangeTimes->{{3.5285527142917128`*^9, 3.528552744143093*^9}, {
+   3.528552860758074*^9, 3.528552866982418*^9}, 3.528553735453106*^9}]
+}, Open  ]],
+
+Cell["\<\
+Next, writing a module chiSquare[binList,M,N] which will return the \
+chi-square value for a list of bin counts:\
+\>", "Text",
+ CellChangeTimes->{{3.528552916168831*^9, 3.528552938630416*^9}, 
+   3.528553156592208*^9, {3.52855324700525*^9, 3.5285532560849323`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"chiSquare", "[", 
+   RowBox[{"binList_", ",", "n_"}], "]"}], ":=", "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"chiSquare", "=", "1"}], ",", "i"}], "}"}], ",", 
+    "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"For", "[", 
+      RowBox[{
+       RowBox[{"i", "=", "1"}], ",", 
+       RowBox[{"i", "<=", 
+        RowBox[{"Length", "[", "binList", "]"}]}], ",", 
+       RowBox[{"i", "++"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"(", 
+        RowBox[{"chiSquare", "=", 
+         RowBox[{"chiSquare", "+", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{
+               RowBox[{"binList", "[", 
+                RowBox[{"[", "i", "]"}], "]"}], "-", 
+               RowBox[{"n", "/", 
+                RowBox[{"Length", "[", "binList", "]"}]}]}], ")"}], "^", 
+             "2"}], "/", 
+            RowBox[{"(", 
+             RowBox[{"n", "/", 
+              RowBox[{"Length", "[", "binList", "]"}]}], ")"}]}], ")"}]}]}], 
+        "\[IndentingNewLine]", ")"}]}], "\[IndentingNewLine]", "]"}], ";", 
+     "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"N", "[", "chiSquare", "]"}]}]}], "\[IndentingNewLine]", 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.528552940620615*^9, 3.5285529484078617`*^9}, {
+  3.528553092814309*^9, 3.528553151673954*^9}, {3.5285532588068237`*^9, 
+  3.528553277518147*^9}, {3.528553366437891*^9, 3.528553524120734*^9}, {
+  3.528553556328491*^9, 3.528553642478209*^9}, {3.528553686573078*^9, 
+  3.528553834641922*^9}, {3.5285539940046997`*^9, 3.528554120046894*^9}}],
+
+Cell["\<\
+Finding chi-square for each of the three RNGs:\
+\>", "Text",
+ CellChangeTimes->{{3.528554144578725*^9, 3.5285541524724092`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"chiSquare", "[", 
+  RowBox[{"minStandardBins", ",", "10000"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"chiSquare", "[", 
+  RowBox[{"randomRealBins", ",", "10000"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"chiSquare", "[", 
+  RowBox[{"subStandardBins", ",", "10000"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.528553526898549*^9, 3.528553542317299*^9}, {
+  3.528553602356044*^9, 3.528553603099511*^9}, {3.528553751767372*^9, 
+  3.528553752718294*^9}, {3.528554156026414*^9, 3.528554173218679*^9}}],
+
+Cell[BoxData["100.06`"], "Output",
+ CellChangeTimes->{{3.528554007609393*^9, 3.528554124625483*^9}, 
+   3.528554173537678*^9}],
+
+Cell[BoxData["98.98`"], "Output",
+ CellChangeTimes->{{3.528554007609393*^9, 3.528554124625483*^9}, 
+   3.528554173539043*^9}],
+
+Cell[BoxData["1219.56`"], "Output",
+ CellChangeTimes->{{3.528554007609393*^9, 3.528554124625483*^9}, 
+   3.5285541735401783`*^9}]
+}, Open  ]],
+
+Cell["\<\
+Now checking to see whether the value of chi-squared/number of bins lies on \
+the interval {1-2/m^(1/2),1+2/m^(1/2)}, which is the official chi-square test:\
+\>", "Text",
+ CellChangeTimes->{{3.528562498559348*^9, 3.528562561683899*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"chiSquare", "[", 
+     RowBox[{"minStandardBins", ",", "10000"}], "]"}], "/", "100"}], ">", 
+   RowBox[{"(", 
+    RowBox[{"1", "-", 
+     RowBox[{"2", "/", "10"}]}], ")"}]}], "&&", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"chiSquare", "[", 
+     RowBox[{"minStandardBins", ",", "10000"}], "]"}], "/", "100"}], "<", 
+   RowBox[{"(", 
+    RowBox[{"1", "+", 
+     RowBox[{"2", "/", "10"}]}], ")"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"chiSquare", "[", 
+     RowBox[{"randomRealBins", ",", "10000"}], "]"}], "/", "100"}], ">", 
+   RowBox[{"(", 
+    RowBox[{"1", "-", 
+     RowBox[{"2", "/", "10"}]}], ")"}]}], "&&", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"chiSquare", "[", 
+     RowBox[{"randomRealBins", ",", "10000"}], "]"}], "/", "100"}], "<", 
+   RowBox[{"(", 
+    RowBox[{"1", "+", 
+     RowBox[{"2", "/", "10"}]}], ")"}]}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"chiSquare", "[", 
+     RowBox[{"subStandardBins", ",", "10000"}], "]"}], "/", "100"}], ">", 
+   RowBox[{"(", 
+    RowBox[{"1", "-", 
+     RowBox[{"2", "/", "10"}]}], ")"}]}], "&&", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"chiSquare", "[", 
+     RowBox[{"subStandardBins", ",", "10000"}], "]"}], "/", "100"}], "<", 
+   RowBox[{"(", 
+    RowBox[{"1", "+", 
+     RowBox[{"2", "/", "10"}]}], ")"}]}]}]}], "Input",
+ CellChangeTimes->{{3.528562573696002*^9, 3.528562591821589*^9}, {
+  3.5285626378922653`*^9, 3.528562696887854*^9}, {3.528562730822113*^9, 
+  3.528562739330092*^9}}],
+
+Cell[BoxData["True"], "Output",
+ CellChangeTimes->{{3.528562670751995*^9, 3.528562697903503*^9}, 
+   3.528562740826008*^9}],
+
+Cell[BoxData["True"], "Output",
+ CellChangeTimes->{{3.528562670751995*^9, 3.528562697903503*^9}, 
+   3.528562740828249*^9}],
+
+Cell[BoxData["False"], "Output",
+ CellChangeTimes->{{3.528562670751995*^9, 3.528562697903503*^9}, 
+   3.5285627408299913`*^9}]
+}, Open  ]],
+
+Cell["\<\
+Thus we see that the Lehmer minimum standard RNG and Mathematica\
+\[CloseCurlyQuote]s RandomReal both pass the chi-square test, but the \
+sub-standard Lehmer RNG does not.\
+\>", "Text",
+ CellChangeTimes->{{3.5285627462010183`*^9, 3.528562774709299*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1658, 949},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+ShowSelection->True,
+FrontEndVersion->"8.0 for Microsoft Windows (64-bit) (February 23, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 207, 4, 83, "Title"],
+Cell[789, 28, 133, 2, 49, "Subtitle"],
+Cell[CellGroupData[{
+Cell[947, 34, 197, 4, 71, "Section"],
+Cell[1147, 40, 410, 7, 29, "Text"],
+Cell[1560, 49, 744, 20, 152, "Input"],
+Cell[2307, 71, 375, 7, 29, "Text"],
+Cell[CellGroupData[{
+Cell[2707, 82, 1780, 40, 312, "Input"],
+Cell[4490, 124, 466, 6, 30, "Output"]
+}, Open  ]],
+Cell[4971, 133, 431, 9, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5439, 147, 197, 4, 71, "Section"],
+Cell[5639, 153, 256, 5, 29, "Text"],
+Cell[CellGroupData[{
+Cell[5920, 162, 742, 14, 112, "Input"],
+Cell[6665, 178, 384, 7, 30, "Output"],
+Cell[7052, 187, 381, 7, 33, "Output"]
+}, Open  ]],
+Cell[7448, 197, 153, 3, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7638, 205, 163, 2, 71, "Section"],
+Cell[7804, 209, 189, 4, 29, "Text"],
+Cell[CellGroupData[{
+Cell[8018, 217, 859, 22, 172, "Input"],
+Cell[8880, 241, 194, 3, 30, "Output"]
+}, Open  ]],
+Cell[9089, 247, 353, 6, 29, "Text"],
+Cell[CellGroupData[{
+Cell[9467, 257, 1554, 31, 132, "Input"],
+Cell[11024, 290, 12421, 206, 392, "Output"],
+Cell[23448, 498, 3573, 69, 416, "Output"],
+Cell[27024, 569, 306, 4, 30, "Output"],
+Cell[27333, 575, 305, 4, 30, "Output"]
+}, Open  ]],
+Cell[27653, 582, 572, 9, 29, "Text"],
+Cell[28228, 593, 347, 7, 29, "Text"],
+Cell[28578, 602, 1343, 39, 132, "Input"],
+Cell[CellGroupData[{
+Cell[29946, 645, 962, 20, 72, "Input"],
+Cell[30911, 667, 3975, 76, 417, "Output"]
+}, Open  ]],
+Cell[34901, 746, 591, 9, 47, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[35529, 760, 103, 1, 71, "Section"],
+Cell[35635, 763, 244, 4, 29, "Text"],
+Cell[35882, 769, 256, 5, 29, "Text"],
+Cell[CellGroupData[{
+Cell[36163, 778, 1082, 31, 72, "Input"],
+Cell[37248, 811, 1412, 20, 50, "Output"],
+Cell[38663, 833, 1410, 20, 50, "Output"],
+Cell[40076, 855, 1382, 20, 50, "Output"]
+}, Open  ]],
+Cell[41473, 878, 275, 5, 29, "Text"],
+Cell[41751, 885, 1718, 41, 232, "Input"],
+Cell[43472, 928, 138, 3, 29, "Text"],
+Cell[CellGroupData[{
+Cell[43635, 935, 522, 9, 72, "Input"],
+Cell[44160, 946, 126, 2, 30, "Output"],
+Cell[44289, 950, 125, 2, 30, "Output"],
+Cell[44417, 954, 129, 2, 30, "Output"]
+}, Open  ]],
+Cell[44561, 959, 246, 4, 29, "Text"],
+Cell[CellGroupData[{
+Cell[44832, 967, 1560, 48, 72, "Input"],
+Cell[46395, 1017, 123, 2, 30, "Output"],
+Cell[46521, 1021, 123, 2, 30, "Output"],
+Cell[46647, 1025, 126, 2, 30, "Output"]
+}, Open  ]],
+Cell[46788, 1030, 263, 5, 29, "Text"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

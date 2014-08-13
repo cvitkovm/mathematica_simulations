@@ -1,0 +1,1265 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     50688,       1256]
+NotebookOptionsPosition[     47661,       1153]
+NotebookOutlinePosition[     48080,       1171]
+CellTagsIndexPosition[     48037,       1168]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["The Size of Eden Clusters", "Title",
+ CellChangeTimes->{{3.5279347546463346`*^9, 3.5279347944116*^9}, {
+   3.528241809107579*^9, 3.528241813043804*^9}, 3.616879406628583*^9, {
+   3.616884943302606*^9, 3.616884978685214*^9}}],
+
+Cell["Milan Cvitkovic", "Subtitle",
+ CellChangeTimes->{{3.527934795924082*^9, 3.527934802195117*^9}, 
+   3.616884901167492*^9}],
+
+Cell[CellGroupData[{
+
+Cell["Section 01: Introduction", "Section",
+ CellChangeTimes->{{3.527934824659552*^9, 3.527934832826672*^9}, {
+  3.6168795689198723`*^9, 3.616879569803467*^9}}],
+
+Cell[TextData[{
+ "In this notebook we will attempt to determine a formula for how the number \
+of particles (sites) in an Eden model cluster (n) depends on the radius of \
+gyration of the cluster (r).  We will assume that n is given by n = c*",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["r", "d"], TraditionalForm]]],
+ " - taking the log of both sides of this equation gives log[n] = \
+log[c]+d*log[r], showing that if we keep track of n and r and found a linear \
+fit it would give us values for log[c] and d as the intercept and slope, \
+respectively.  We will develop code to simulate Eden growth and grow a \
+cluster of a certain size, find the radius of gyration of that cluster, run a \
+number of simulations and find r and n for a number of clusters, and use the \
+radii and cluster sizes from these simulations to find good average values \
+for Log[c] and d."
+}], "Text",
+ CellChangeTimes->{{3.527934988747069*^9, 3.527935053554133*^9}, {
+  3.527935088292944*^9, 3.5279352863975782`*^9}, {3.528243112768144*^9, 
+  3.528243117123393*^9}, {3.528243173448615*^9, 3.5282431864643593`*^9}, {
+  3.616884958731894*^9, 3.616884962048102*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Section 02: Needed Packages", "Section",
+ CellChangeTimes->{{3.527934835051243*^9, 3.527934844426488*^9}}],
+
+Cell["None.", "Text",
+ CellChangeTimes->{{3.527935308087408*^9, 3.527935310708391*^9}}]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Section 03: Some Needed Statistical Functions", "Section",
+ CellChangeTimes->{{3.5268993614229393`*^9, 3.5268993716295233`*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", 
+  RowBox[{"ave", ",", " ", "aveSqr", ",", " ", "var", ",", " ", "unc"}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ave", "[", "List_", "]"}], " ", ":=", " ", 
+   RowBox[{"N", "[", 
+    RowBox[{
+     RowBox[{"Apply", "[", 
+      RowBox[{"Plus", ",", "List"}], "]"}], "/", 
+     RowBox[{"Length", "[", "List", "]"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"aveSqr", "[", "List_", "]"}], " ", ":=", " ", 
+   RowBox[{"N", "[", 
+    RowBox[{
+     RowBox[{"Apply", "[", 
+      RowBox[{"Plus", ",", 
+       RowBox[{"List", "^", "2"}]}], "]"}], "/", 
+     RowBox[{"Length", "[", "List", "]"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"var", "[", "List_", "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"aveSqr", "[", "List", "]"}], "-", 
+    RowBox[{
+     RowBox[{"ave", "[", "List", "]"}], "^", "2"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"unc", "[", "List_", "]"}], " ", ":=", " ", 
+  RowBox[{"Sqrt", "[", 
+   RowBox[{
+    RowBox[{"var", "[", "List", "]"}], "/", 
+    RowBox[{"Length", "[", "List", "]"}]}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.52624280952017*^9, 3.526242819253727*^9}, {
+  3.5262428926039224`*^9, 3.526242911489002*^9}, {3.526243001815169*^9, 
+  3.5262430074974937`*^9}, {3.5262431052230835`*^9, 3.5262431086842813`*^9}, {
+  3.52631012408995*^9, 3.526310131000414*^9}, {3.52631021015803*^9, 
+  3.526310236068015*^9}, {3.526915605869944*^9, 3.5269157829529963`*^9}}],
+
+Cell["Testing code:", "Text",
+ CellChangeTimes->{{3.5269266131339073`*^9, 3.5269266153959723`*^9}, {
+  3.5275956973891172`*^9, 3.527595697748929*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", 
+  RowBox[{"TestList", ",", "a", ",", "b", ",", "c", ",", "d"}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"TestList", " ", "=", " ", 
+  RowBox[{"{", 
+   RowBox[{"a", ",", "b", ",", "c", ",", "d"}], 
+   "}"}]}], "\[IndentingNewLine]", 
+ RowBox[{"ave", "[", "TestList", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"aveSqr", "[", "TestList", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"var", "[", "TestList", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"unc", "[", "TestList", "]"}]}], "Input",
+ CellChangeTimes->{{3.527614568132025*^9, 3.5276145687062693`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"a", ",", "b", ",", "c", ",", "d"}], "}"}]], "Output",
+ CellChangeTimes->{3.526926623224986*^9, 3.527594764109253*^9, 
+  3.52761457051383*^9, 3.527935333603181*^9, 3.5282418429565153`*^9, 
+  3.6168520136628675`*^9}],
+
+Cell[BoxData[
+ RowBox[{"0.25`", " ", 
+  RowBox[{"(", 
+   RowBox[{"a", "+", "b", "+", "c", "+", "d"}], ")"}]}]], "Output",
+ CellChangeTimes->{3.526926623224986*^9, 3.527594764109253*^9, 
+  3.52761457051383*^9, 3.527935333603181*^9, 3.5282418429565153`*^9, 
+  3.6168520136658697`*^9}],
+
+Cell[BoxData[
+ RowBox[{"0.25`", " ", 
+  RowBox[{"(", 
+   RowBox[{
+    SuperscriptBox["a", "2"], "+", 
+    SuperscriptBox["b", "2"], "+", 
+    SuperscriptBox["c", "2"], "+", 
+    SuperscriptBox["d", "2"]}], ")"}]}]], "Output",
+ CellChangeTimes->{3.526926623224986*^9, 3.527594764109253*^9, 
+  3.52761457051383*^9, 3.527935333603181*^9, 3.5282418429565153`*^9, 
+  3.6168520136678705`*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"-", "0.0625`"}], " ", 
+   SuperscriptBox[
+    RowBox[{"(", 
+     RowBox[{"a", "+", "b", "+", "c", "+", "d"}], ")"}], "2"]}], "+", 
+  RowBox[{"0.25`", " ", 
+   RowBox[{"(", 
+    RowBox[{
+     SuperscriptBox["a", "2"], "+", 
+     SuperscriptBox["b", "2"], "+", 
+     SuperscriptBox["c", "2"], "+", 
+     SuperscriptBox["d", "2"]}], ")"}]}]}]], "Output",
+ CellChangeTimes->{3.526926623224986*^9, 3.527594764109253*^9, 
+  3.52761457051383*^9, 3.527935333603181*^9, 3.5282418429565153`*^9, 
+  3.616852013668874*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  FractionBox["1", "2"], " ", 
+  SqrtBox[
+   RowBox[{
+    RowBox[{
+     RowBox[{"-", "0.0625`"}], " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"a", "+", "b", "+", "c", "+", "d"}], ")"}], "2"]}], "+", 
+    RowBox[{"0.25`", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       SuperscriptBox["a", "2"], "+", 
+       SuperscriptBox["b", "2"], "+", 
+       SuperscriptBox["c", "2"], "+", 
+       SuperscriptBox["d", "2"]}], ")"}]}]}]]}]], "Output",
+ CellChangeTimes->{3.526926623224986*^9, 3.527594764109253*^9, 
+  3.52761457051383*^9, 3.527935333603181*^9, 3.5282418429565153`*^9, 
+  3.6168520136708727`*^9}]
+}, Open  ]],
+
+Cell["\<\
+The symbolic interpretations are correct - all seem to work correctly.\
+\>", "Text",
+ CellChangeTimes->{{3.527515148654983*^9, 3.527515155109043*^9}, {
+  3.5276152805207253`*^9, 3.527615287592494*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Section 04: The eden03[] Module\
+\>", "Section",
+ CellChangeTimes->{{3.527934862858279*^9, 3.527934871870858*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "eden03", "]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"eden03", "[", "n_", "]"}], ":=", "\[IndentingNewLine]", 
+   RowBox[{"Module", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "choices", ",", "findNewCluster03", ",", "newSite", ",", "newBorder"}], 
+      "}"}], ",", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"choices", "=", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"{", 
+          RowBox[{"1", ",", "0"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"0", ",", "1"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{
+           RowBox[{"-", "1"}], ",", "0"}], "}"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"0", ",", 
+           RowBox[{"-", "1"}]}], "}"}]}], "}"}]}], ";", "\[IndentingNewLine]",
+       "\[IndentingNewLine]", 
+      RowBox[{"findNewCluster03", ":=", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"(", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"newSite", "=", 
+           RowBox[{"#", "[", 
+            RowBox[{"[", 
+             RowBox[{"2", ",", 
+              RowBox[{"RandomInteger", "[", 
+               RowBox[{"{", 
+                RowBox[{"1", ",", 
+                 RowBox[{"Length", "[", 
+                  RowBox[{"#", "[", 
+                   RowBox[{"[", "2", "]"}], "]"}], "]"}]}], "}"}], "]"}]}], 
+             "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+          RowBox[{"newBorder", " ", "=", 
+           RowBox[{"Complement", "[", 
+            RowBox[{
+             RowBox[{"Union", "[", 
+              RowBox[{
+               RowBox[{"#", "[", 
+                RowBox[{"[", "2", "]"}], "]"}], ",", 
+               RowBox[{"Map", "[", 
+                RowBox[{
+                 RowBox[{
+                  RowBox[{"(", 
+                   RowBox[{"#", "+", "newSite"}], ")"}], "&"}], ",", 
+                 "choices"}], "]"}]}], "]"}], ",", 
+             RowBox[{"{", "newSite", "}"}], ",", 
+             RowBox[{"#", "[", 
+              RowBox[{"[", "1", "]"}], "]"}]}], "]"}]}], ";", 
+          "\[IndentingNewLine]", 
+          RowBox[{"{", 
+           RowBox[{
+            RowBox[{"Join", "[", 
+             RowBox[{
+              RowBox[{"#", "[", 
+               RowBox[{"[", "1", "]"}], "]"}], ",", 
+              RowBox[{"{", "newSite", "}"}]}], "]"}], ",", "newBorder"}], 
+           "}"}]}], "\[IndentingNewLine]", ")"}], "&"}]}], ";", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{"Nest", "[", 
+       RowBox[{"findNewCluster03", ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"{", 
+            RowBox[{"0", ",", "0"}], "}"}], "}"}], ",", "choices"}], "}"}], 
+        ",", "n"}], "]"}]}]}], "\[IndentingNewLine]", "]"}]}], 
+  ";"}]}], "Input"],
+
+Cell["Testing:", "Text",
+ CellChangeTimes->{{3.527935498691925*^9, 3.527935500001863*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"test01", "=", 
+  RowBox[{"eden03", "[", "10", "]"}]}]], "Input",
+ CellChangeTimes->{{3.527935501838024*^9, 3.5279355329715147`*^9}, {
+   3.527937116430427*^9, 3.527937131325536*^9}, 3.5279372339447317`*^9, {
+   3.527938890586534*^9, 3.5279389173162737`*^9}, {3.5282434963430834`*^9, 
+   3.528243497648158*^9}, {3.5282441193007145`*^9, 3.5282441202167673`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"0", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", 
+       RowBox[{"-", "2"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "3"}], ",", "0"}], "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "4"}], ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "3"}], ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "3"}], ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "2"}], ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"-", "2"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "1"}], ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", 
+       RowBox[{"-", "3"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "2"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "2"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "3"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "1"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"2", ",", "2"}], "}"}]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.527935515910057*^9, 3.5279355334647207`*^9}, 
+   3.5279368019469633`*^9, 3.5279369667773848`*^9, {3.5279371173587112`*^9, 
+   3.527937132709882*^9}, 3.527937234407277*^9, {3.5279385472264357`*^9, 
+   3.527938549663385*^9}, {3.5279388918494673`*^9, 3.527938917792714*^9}, 
+   3.527946294206665*^9, {3.5282418588544245`*^9, 3.5282418634026847`*^9}, 
+   3.528243500243306*^9, 3.5282441206827936`*^9, 3.6168520137239103`*^9}]
+}, Open  ]],
+
+Cell["\<\
+This cluster appears to be growing properly and the border is correct given \
+the guts.\
+\>", "Text",
+ CellChangeTimes->{{3.527935519547565*^9, 3.527935558152997*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Section 05: Module for Generating a List of {r,n} Values from the Guts of the \
+Full Cluster List\
+\>", "Section",
+ CellChangeTimes->{{3.527934875210106*^9, 3.52793494369733*^9}, {
+  3.527936538804432*^9, 3.52793654530024*^9}}],
+
+Cell["\<\
+Now we will develop a module findRG[] which will take a cluster list in the \
+usual form of {guts,border} and generate a list of values in the form {radius \
+of gyration of cluster (r), number of sites in cluster {n)}, for each number \
+of sites in a cluster.\
+\>", "Text",
+ CellChangeTimes->{{3.527935600106234*^9, 3.52793567421561*^9}, {
+  3.527936036782688*^9, 3.527936036995062*^9}, {3.527937746167334*^9, 
+  3.527937758171966*^9}, {3.527938090255728*^9, 3.52793811831857*^9}, {
+  3.5282432215733676`*^9, 3.5282432247925515`*^9}, {3.5282439520231466`*^9, 
+  3.5282439553733387`*^9}}],
+
+Cell[TextData[{
+ "To find the r, we\[CloseCurlyQuote]ll rely on our derivation from \
+Assignment 08 that ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["r", "2"], TraditionalForm]]],
+ " = (",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"<", 
+    SuperscriptBox["x", "2"]}], TraditionalForm]]],
+ "> - ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"<", "x", 
+    SuperscriptBox[">", "2"]}], TraditionalForm]]],
+ ") + (",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"<", 
+    SuperscriptBox["y", "2"]}], TraditionalForm]]],
+ "> - ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"<", "y", 
+    SuperscriptBox[">", "2"]}], TraditionalForm]]],
+ ") = Var(x)+Var(y).  Creating our module using our code for variance from \
+Section 03:"
+}], "Text",
+ CellChangeTimes->{{3.527936114937614*^9, 3.527936416605839*^9}, {
+  3.52793645819744*^9, 3.527936492429069*^9}, {3.5282419221710463`*^9, 
+  3.5282419352697954`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"findRG", "[", "inpCluster_", "]"}], ":=", "\[IndentingNewLine]", 
+    
+    RowBox[{"Module", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"xyList", ",", "rgList", ",", "n"}], "}"}], ",", 
+      "\[IndentingNewLine]", "\[IndentingNewLine]", 
+      RowBox[{
+       RowBox[{"rgList", "=", 
+        RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+        "separating", " ", "the", " ", "x", " ", "and", " ", "y", " ", 
+         "values", " ", "and", " ", "finding", " ", "the", " ", "variance", 
+         " ", "in", " ", "each"}], "*)"}], "\[IndentingNewLine]", 
+       RowBox[{"xyList", "=", 
+        RowBox[{"Transpose", "[", 
+         RowBox[{"inpCluster", "[", 
+          RowBox[{"[", "1", "]"}], "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+       RowBox[{"(*", 
+        RowBox[{
+         RowBox[{
+         "finding", " ", "the", " ", "variance", " ", "in", " ", "x", " ", 
+          "and", " ", "y", " ", "and", " ", "taking", " ", "the", " ", "sqrt",
+           " ", "to", " ", "get", " ", "r"}], ",", " ", 
+         RowBox[{
+         "and", " ", "putting", " ", "this", " ", "as", " ", "the", " ", 
+          "first", " ", "value", " ", "in", " ", "a", " ", "list", " ", 
+          RowBox[{"{", 
+           RowBox[{"r", ",", "n"}], "}"}]}], ",", " ", 
+         RowBox[{
+         "repeating", " ", "this", " ", "for", " ", "each", " ", "n"}]}], 
+        "*)"}], "\[IndentingNewLine]", 
+       RowBox[{"Monitor", "[", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"For", "[", 
+          RowBox[{
+           RowBox[{"n", "=", "1"}], ",", 
+           RowBox[{"n", "\[LessEqual]", 
+            RowBox[{"Length", "[", 
+             RowBox[{"inpCluster", "[", 
+              RowBox[{"[", "1", "]"}], "]"}], "]"}]}], ",", 
+           RowBox[{"n", "++"}], ",", "\[IndentingNewLine]", 
+           RowBox[{"AppendTo", "[", 
+            RowBox[{"rgList", ",", "\[IndentingNewLine]", 
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"Sqrt", "[", 
+                RowBox[{
+                 RowBox[{"var", "[", 
+                  RowBox[{"Take", "[", 
+                   RowBox[{
+                    RowBox[{"xyList", "[", 
+                    RowBox[{"[", "1", "]"}], "]"}], ",", "n"}], "]"}], "]"}], 
+                 "+", 
+                 RowBox[{"var", "[", 
+                  RowBox[{"Take", "[", 
+                   RowBox[{
+                    RowBox[{"xyList", "[", 
+                    RowBox[{"[", "2", "]"}], "]"}], ",", "n"}], "]"}], 
+                  "]"}]}], "]"}], ",", "n"}], "}"}]}], "\[IndentingNewLine]", 
+            "]"}]}], "\[IndentingNewLine]", "]"}], ",", "n"}], 
+        "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+       "\[IndentingNewLine]", "rgList"}]}], "\[IndentingNewLine]", "]"}]}], 
+   ";"}], "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.527936419797681*^9, 3.527936430839381*^9}, {
+   3.527936510417918*^9, 3.5279365516299877`*^9}, {3.527936631596304*^9, 
+   3.527936673309305*^9}, {3.527936860290998*^9, 3.527936949916217*^9}, {
+   3.527936996315777*^9, 3.5279370345392714`*^9}, {3.527937145555991*^9, 
+   3.527937156962119*^9}, {3.527937794029813*^9, 3.527937799905867*^9}, {
+   3.527937857668642*^9, 3.5279380725677023`*^9}, {3.5279383508065567`*^9, 
+   3.527938385701433*^9}, {3.5279384297983418`*^9, 3.527938498621683*^9}, {
+   3.5279385842834263`*^9, 3.5279385848611794`*^9}, {3.5279387779901342`*^9, 
+   3.5279388080694733`*^9}, {3.527938850411584*^9, 3.5279388520289497`*^9}, {
+   3.527945994596781*^9, 3.527946043281097*^9}, 3.527946074119979*^9, {
+   3.527946278373617*^9, 3.5279462786380033`*^9}}],
+
+Cell["Testing:", "Text",
+ CellChangeTimes->{{3.527936952528202*^9, 3.527936955294117*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"findRG", "[", "test01", "]"}]], "Input",
+ CellChangeTimes->{{3.527936957229001*^9, 3.527936971111639*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.`", ",", "1"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.5`", ",", "2"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.6666666666666666`", ",", "3"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"0.9354143466934853`", ",", "4"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.131370849898476`", ",", "5"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.1666666666666667`", ",", "6"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.385051387833237`", ",", "7"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.357847561400027`", ",", "8"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.3966450099973926`", ",", "9"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.4832396974191326`", ",", "10"}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"1.656442468935327`", ",", "11"}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.5279369716644*^9, 3.527937038700944*^9, 3.527937246305923*^9, {
+   3.527938503887163*^9, 3.527938507224106*^9}, {3.527938543705995*^9, 
+   3.527938554118341*^9}, 3.527938589364545*^9, 3.5279388573960733`*^9, {
+   3.527938896464435*^9, 3.527938920910068*^9}, {3.527946168525691*^9, 
+   3.527946170711998*^9}, {3.527946282875588*^9, 3.5279463090762377`*^9}, 
+   3.5282418700220633`*^9, {3.528241940578099*^9, 3.528241942301197*^9}, 
+   3.5282435100868697`*^9, 3.528244128544243*^9, 3.6168520137969575`*^9}]
+}, Open  ]],
+
+Cell["\<\
+Qualitatively, based on the small test01 cluster, these r value seem \
+reasonable for each n value (should start at 0, go to 0.5, and then continue \
+increasing).\
+\>", "Text",
+ CellChangeTimes->{{3.527937174061697*^9, 3.527937202315365*^9}, {
+  3.527938608740223*^9, 3.5279386351356363`*^9}, {3.5282435206644745`*^9, 
+  3.528243522320569*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Section 06: Module for Finding the Exponent d and the Intercept Loc[c] for a \
+Log-Log Plot of {r,n} Values\
+\>", "Section",
+ CellChangeTimes->{{3.527934906881674*^9, 3.5279349249963512`*^9}}],
+
+Cell["\<\
+Now we\[CloseCurlyQuote]ll create a module logRN[] which will take our rgList \
+from above, find the best values for the slope and intercept of a log-log \
+plot of r and n from nMin (must be greater than 2 and less than the full \
+cluster size) to the full cluster, and output them in the form {intercept \
+(log[c]), slope (d)}:\
+\>", "Text",
+ CellChangeTimes->{{3.527937307987135*^9, 3.527937332872821*^9}, {
+  3.527937393792431*^9, 3.527937407672295*^9}, {3.527938643907042*^9, 
+  3.527938664391032*^9}, {3.527938700691505*^9, 3.5279387375822477`*^9}, {
+  3.527946787928618*^9, 3.5279468057266617`*^9}, {3.5279468749532213`*^9, 
+  3.527946916157669*^9}, {3.5279470970590353`*^9, 3.5279471173470182`*^9}, {
+  3.527947198270021*^9, 3.527947204561652*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"logRN", "[", 
+   RowBox[{"rgList_", ",", "nMin_"}], "]"}], ":=", "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"logList", ",", "bestLogFits", ",", "z"}], "}"}], ",", 
+    "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"logList", "=", 
+      RowBox[{"LinearModelFit", "[", 
+       RowBox[{
+        RowBox[{"N", "[", 
+         RowBox[{"Log", "[", 
+          RowBox[{"Drop", "[", 
+           RowBox[{"rgList", ",", 
+            RowBox[{"nMin", "-", "1"}]}], "]"}], "]"}], "]"}], ",", "z", ",", 
+        "z"}], "]"}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+     RowBox[{"bestLogFits", " ", "=", " ", 
+      RowBox[{"logList", "[", "\"\<BestFitParameters\>\"", "]"}]}]}]}], 
+   "\[IndentingNewLine]", "]"}]}]], "Input",
+ CellChangeTimes->{{3.5279387401085033`*^9, 3.5279387457195473`*^9}, {
+  3.527938953384513*^9, 3.527938959205001*^9}, {3.5279390000073*^9, 
+  3.527939080844089*^9}, {3.52793914081271*^9, 3.5279391602516413`*^9}, {
+  3.527939230254088*^9, 3.527939230346219*^9}, {3.527939262109592*^9, 
+  3.52793929045846*^9}, {3.527946265248682*^9, 3.527946268984091*^9}, {
+  3.527946425032632*^9, 3.52794643190254*^9}, {3.527946486656499*^9, 
+  3.527946491621777*^9}, {3.527946556262767*^9, 3.527946556412561*^9}, {
+  3.5279465895723143`*^9, 3.527946639676292*^9}, {3.527949262323516*^9, 
+  3.527949265090583*^9}}],
+
+Cell["Testing:", "Text",
+ CellChangeTimes->{{3.527946817685923*^9, 3.527946822509585*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"parameters01", "=", 
+  RowBox[{"logRN", "[", 
+   RowBox[{
+    RowBox[{"findRG", "[", "test01", "]"}], ",", "2"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.527946823691452*^9, 3.527946850327261*^9}, {
+  3.528242553672166*^9, 3.528242558387436*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"1.6113490360747198`", ",", "1.4217821039602672`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{{3.527946836114662*^9, 3.5279468508776712`*^9}, 
+   3.527949267653241*^9, 3.5282419503856597`*^9, 3.528242559427495*^9, 
+   3.528243531996123*^9, 3.6168520139180384`*^9}]
+}, Open  ]],
+
+Cell["\<\
+The output is in the correct form, so it seems to work fine though I can\
+\[CloseCurlyQuote]t say much about how reasonable the values are.\
+\>", "Text",
+ CellChangeTimes->{{3.527947215930035*^9, 3.527947259800185*^9}}],
+
+Cell["\<\
+Checking with representative plots:\
+\>", "Text",
+ CellChangeTimes->{{3.5282420655822487`*^9, 3.5282420770679054`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", 
+  RowBox[{"a", ",", "b", ",", "x"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"test02", "=", 
+   RowBox[{"eden03", "[", "500", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"logRNEqn01", "=", 
+   RowBox[{
+    RowBox[{"logRN", "[", 
+     RowBox[{
+      RowBox[{"findRG", "[", "test02", "]"}], ",", "2"}], "]"}], "/.", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"a_", ",", "b_"}], "}"}], "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{"a", "+", 
+       RowBox[{"b", "*", "x"}]}], "}"}]}]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"logRNValues01", "=", 
+   RowBox[{"N", "[", 
+    RowBox[{"Log", "[", 
+     RowBox[{"Drop", "[", 
+      RowBox[{
+       RowBox[{"findRG", "[", "test02", "]"}], ",", "1"}], "]"}], "]"}], 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Plot01", "=", " ", 
+   RowBox[{"Plot", "[", 
+    RowBox[{"logRNEqn01", ",", 
+     RowBox[{"{", 
+      RowBox[{"x", ",", 
+       RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", " ", 
+     RowBox[{"Frame", " ", "\[Rule]", " ", "True"}], ",", " ", 
+     RowBox[{"ImageSize", " ", "\[Rule]", " ", "600"}], ",", " ", 
+     RowBox[{"Background", " ", "\[Rule]", " ", "LightGray"}], ",", 
+     RowBox[{"GridLines", "\[Rule]", "Automatic"}], ",", 
+     RowBox[{"PlotStyle", "\[Rule]", "Magenta"}], ",", 
+     RowBox[{"FrameLabel", " ", "\[Rule]", " ", 
+      RowBox[{"{", 
+       RowBox[{
+       "\"\<log[r]\>\"", ",", "\"\<log[n]\>\"", ",", 
+        "\"\<Plot of Line Based on Log[c] and d vs. actual {log[r],log[n]} \
+Values from the Same Cluster\>\""}], "}"}]}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"Plot02", "=", 
+   RowBox[{"ListPlot", "[", 
+    RowBox[{"logRNValues01", ",", 
+     RowBox[{"Frame", " ", "\[Rule]", " ", "True"}], ",", " ", 
+     RowBox[{"ImageSize", " ", "\[Rule]", " ", "600"}], ",", " ", 
+     RowBox[{"Background", " ", "\[Rule]", " ", "LightGray"}], ",", 
+     RowBox[{"GridLines", "\[Rule]", "Automatic"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Show", "[", 
+  RowBox[{"Plot01", ",", "Plot02"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.528242094033876*^9, 3.5282421315220203`*^9}, {
+  3.5282422576342335`*^9, 3.5282422757732706`*^9}, {3.528242334885652*^9, 
+  3.5282423516396103`*^9}, {3.5282424819660645`*^9, 3.5282424949938097`*^9}, {
+  3.528242535365119*^9, 3.528242540266399*^9}, {3.5282426251062517`*^9, 
+  3.528242652225803*^9}, {3.528242739180776*^9, 3.528242782515255*^9}, {
+  3.5282428382824445`*^9, 3.528242848290017*^9}, {3.5282428974828305`*^9, 
+  3.5282429254874325`*^9}, {3.5282429791995044`*^9, 3.5282430590500717`*^9}, {
+  3.5282431366885123`*^9, 3.5282431564746437`*^9}, {3.528243266518938*^9, 
+  3.5282434822312765`*^9}, {3.5282435583776317`*^9, 3.5282435606327605`*^9}, {
+  3.5282439660379486`*^9, 3.5282440268684278`*^9}, {3.5282441366597075`*^9, 
+  3.5282442031815124`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{{}, {}, 
+    {RGBColor[1, 0, 1], LineBox[CompressedData["
+1:eJwtlPs31GkcgMeM63wRrXTIEMoqVpM2zip9Xl1sJZStQ0mM3cpBKV2QVilq
+Krs5UqvJDhpaVKNal0bMK9KMyroMZprRxGAaI/NlKZcuu+05+8NznvP8A49j
+dELIXiqFQgn8wn/2AGvtP/+QOOdoecdve7U4YcaZPTNL4mt+ZhaCXVp878/l
+LhPvvrT5oSB5sBZ7ugZGq0e+dOnK53Y+WuxtmSF/ISUxp7fhSZG5FqOB8WfX
+K0jMXS+tuV0zjEPOt95eEUnicit9LjYZxkltGQf2C3VYWBkR++buG9zVRWgf
+s0Yx58Kp9AePBjGjIcHK2+4tlv8lTUn+0I+r4p4YzHmlxb3Pv69l5ChxVNby
+sZdnhnGUc/3Pfg9leDonlY1BgyvDC2jhayWYZ660yetXY/GJelMp/xnO37w8
+UXJhCLfT5588slCIz8SzkpdsGsQN/q3tDupCnEorT0ocVeEo3/IE0o4PrNNt
+i3pK+3ED3+Nrq9ONcLV+KC8/tg/3neM9LfdrhdrXrqZ3nJR4keGy6rLjXeBs
+gdZu5yqwYUyBP1vzEh4sZceqBmQ4u9BTntD2Gl4331/o5dWDH9qSAeGtKhhy
+v+qJqyW48eivLbT0IbBMK/Py0OvA9j5YzEzQgLsX6V4y8QJbXRaoo91G4Oz6
+0XZBsgjvDt5wzsZJB/O287N3zm/EGu7BV6cyx+DB++Y54kW1mIxwOP+ubxxK
+FEO/DGfwcUFn3uG7OycgYptdpeLHXGw3J2lkv2ASBPTU7sZjV6AiWrHMZ+57
+WKnSs08Pq4CROOOqIPYUOI89mvFpFMDkak7L3qFp2MR72RoU1gglTZP2OHIW
+NgTOpb2rEsEBVvcapuQDXI6UnmbWvACqyFbH++YTiIIYZlvndgBSuSp3lnyG
+Ucd5aZ0cCZSoWj1MqBR07Kgb67J1D1RHPvth/C4FSXstQvaJZcDxdrt+IkYP
+RaWsfmO0RQH7jqxxybSmoiY374tNBkowpFdLmBIqcjGp0xRv7IMs/T5xxFka
+YtTFbTBg9wOXHsizZuojyiy1LFGlgow4e+6hEX00ta1+T/PiQdjKvNkXwDFA
+im8jFyzOGILx4IvrxKGG6FCohaVTrxoYqVWX2i2NkE3uYJg+QwNM+pUFu7AR
+4ocX/jGRPAzWk13PM1KNUajvqY3iei0M+rU0Md1M0P09B5x8Po7A6huUohip
+CZqmr6MJdoxCbHA+1y+HjkI6Vnkx8nRwcr924AYiEH0V8bjudx1MBvTH3FpH
+oMfF8oDdPB3EM2Wj9/wJxExOYd3g62DXTPNU8xYCmTvUZNk068DrUhExFkag
+lnjPgXl/62CMH7Zi/WECIeMl2eZbSPjp/dMzb4sINH142pa/jQS5vN5oqphA
+FQpRSWAoCSG4MkuvlED2FfseZUWTgNg3r1nzCfRxR7GankKCvW1aOaolUA3P
+wdfoFgk9vis7czsJdNCMFN26TUKQk3toQTeBXJKEIf73SXhq6NxbJiNQ7uaI
+mMw6EirbLNRCJYESxzlXaBISsllvZzRaAi0Nj7XnyUgw9h9ImxglUP+T78rW
+KklIWyqnfR4j0NY8mTB9mIT4CZHZV1MEMqaWbnIkSRiUCnMYswTCcUldDZMk
+7K6rmu/6iUDHu/0jo2ZJ6Cy8k+9JMUX//ws2Z/IcfWmm6F+muHUl
+      "]]}}, {{}, 
+    {Hue[0.67, 0.6, 0.6], PointBox[CompressedData["
+1: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
+      "]]}, {}}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesOrigin->{0, 0},
+  Background->GrayLevel[0.85],
+  Frame->True,
+  FrameLabel->{
+    FormBox["\"log[r]\"", TraditionalForm], 
+    FormBox["\"log[n]\"", TraditionalForm], 
+    FormBox[
+    "\"Plot of Line Based on Log[c] and d vs. actual {log[r],log[n]} Values \
+from the Same Cluster\"", TraditionalForm]},
+  GridLines->Automatic,
+  ImageSize->600,
+  PlotRange->{{-1, 1}, {-0.8249014945064508, 3.501581442644839}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{
+    Scaled[0.02], 
+    Scaled[0.02]}]], "Output",
+ CellChangeTimes->{
+  3.5282427846043744`*^9, 3.528242849154066*^9, {3.528242906459344*^9, 
+   3.528242928909628*^9}, {3.5282430349296923`*^9, 3.528243059299086*^9}, {
+   3.5282431507503166`*^9, 3.5282431567706614`*^9}, {3.528243279063656*^9, 
+   3.528243284452964*^9}, {3.528243341654236*^9, 3.5282434050088596`*^9}, {
+   3.5282434573358526`*^9, 3.5282434830743246`*^9}, {3.528243535988351*^9, 
+   3.5282435620998445`*^9}, {3.528244018326939*^9, 3.528244027412459*^9}, {
+   3.5282441988982673`*^9, 3.5282442073907533`*^9}, 3.616852014361334*^9}]
+}, Open  ]],
+
+Cell["\<\
+This plot shows a best-fit line drawn using the output of module logRN \
+overlayed with the actual log[r],log[n] values from a test cluster of 500 \
+particles (test02).  The fit is reasonably good for such a small cluster \
+indicating that logRN is working correctly.\
+\>", "Text",
+ CellChangeTimes->{{3.528244032640758*^9, 3.5282441002386246`*^9}, {
+  3.52824421590724*^9, 3.528244252728346*^9}}],
+
+Cell["", "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+Section 07: Best Value and Uncertainties for {Log[c],d} Found from a Number \
+of Runs\
+\>", "Section",
+ CellChangeTimes->{{3.527934948593302*^9, 3.5279349664106693`*^9}}],
+
+Cell["\<\
+Now that we have code to get us {log[c], d} values from a single run, we can \
+take an ensemble of these runs and find a best value and uncertainty in \
+log[c] and d.\
+\>", "Text",
+ CellChangeTimes->{{3.527948842157757*^9, 3.527948888107744*^9}}],
+
+Cell["\<\
+Creating a list of {log[c],d} values for 60 Eden clusters, each 10000 units \
+large, using r values from 5000\[LessEqual]n\[LessEqual]10000:\
+\>", "Text",
+ CellChangeTimes->{{3.527948890654262*^9, 3.527948891651002*^9}, {
+  3.5279494144522743`*^9, 3.527949427307951*^9}, {3.5279494665955057`*^9, 
+  3.527949537474625*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "n", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"data01", "=", 
+   RowBox[{"Monitor", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"logRN", "[", 
+        RowBox[{
+         RowBox[{"findRG", "[", 
+          RowBox[{"eden03", "[", "10000", "]"}], "]"}], ",", "5000"}], "]"}], 
+       ",", 
+       RowBox[{"{", 
+        RowBox[{"n", ",", "1", ",", "60"}], "}"}]}], "]"}], ",", "n"}], 
+    "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.527948904473399*^9, 3.5279489681564913`*^9}, {
+   3.527949026421647*^9, 3.5279490447636843`*^9}, {3.527949089037286*^9, 
+   3.527949093987376*^9}, {3.527949208499737*^9, 3.527949219289839*^9}, {
+   3.52794925108329*^9, 3.52794925502557*^9}, {3.527949402115164*^9, 
+   3.5279494024718513`*^9}, 3.5282442924416175`*^9}],
+
+Cell["\<\
+(Had more time, so did 130 more trials of the same thing)\
+\>", "Text",
+ CellChangeTimes->{{3.5279613536156387`*^9, 3.527961373221669*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "n", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"data02", "=", 
+   RowBox[{"Monitor", "[", 
+    RowBox[{
+     RowBox[{"Table", "[", 
+      RowBox[{
+       RowBox[{"logRN", "[", 
+        RowBox[{
+         RowBox[{"findRG", "[", 
+          RowBox[{"eden03", "[", "10000", "]"}], "]"}], ",", "5000"}], "]"}], 
+       ",", 
+       RowBox[{"{", 
+        RowBox[{"n", ",", "1", ",", "130"}], "}"}]}], "]"}], ",", "n"}], 
+    "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.527952844081636*^9, 3.527952895416806*^9}, 
+   3.528244297529909*^9}],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[$CellContext`n, StandardForm],
+  Evaluator->"Local",
+  ImageSizeCache->{7., {0., 6.}}]], "PrintTemporary",
+ CellChangeTimes->{3.6168721035779715`*^9}]
+}, Open  ]],
+
+Cell["\<\
+Now we\[CloseCurlyQuote]ll use our statistical functions to analyze these \
+data.  Finding the best value and uncertainty for {log[c],d}:\
+\>", "Text",
+ CellChangeTimes->{{3.527961622538499*^9, 3.5279616535857*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"fullData", "=", 
+   RowBox[{"Join", "[", 
+    RowBox[{"data01", ",", "data02"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"ave", "[", "fullData", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"unc", "[", "fullData", "]"}]}], "Input",
+ CellChangeTimes->{{3.5279613775476437`*^9, 3.5279614096947927`*^9}, {
+  3.5279614633977547`*^9, 3.527961480981285*^9}, {3.527961551878697*^9, 
+  3.527961603614389*^9}, {3.5279616563959723`*^9, 3.527961665403206*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"1.6897470896091156`", ",", "2.0346523621495254`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{3.527961666623211*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"0.005241235690066168`", ",", "0.001408606899001868`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{3.527961666624938*^9}]
+}, Open  ]],
+
+Cell["\<\
+Thus we have found log[c] = 1.690\[PlusMinus]0.005 and d = \
+2.035\[PlusMinus]0.001\
+\>", "Text",
+ CellChangeTimes->{{3.527961673105485*^9, 3.527961750840399*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Section 08: Conclusions", "Section",
+ CellChangeTimes->{{3.527934968816966*^9, 3.5279349715126123`*^9}}],
+
+Cell[TextData[{
+ "The goal of this notebook was to see how the number of cells in an Eden \
+cluster, n, depends on the radius of gyration, r.  We assumed that this could \
+be modeled by the equation n = c*",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox["r", "d"], TraditionalForm]]],
+ ", where c and d are constants.  Taking the log of both sides of this \
+equation gives log[n] = log[c]+d*log[r], showing that if we kept track of r \
+and n and found a linear fit it would give us values for log[c] and d as the \
+intercept and slope, respectively.\n\nAfter implementing code to simulate an \
+Eden growth model from a single starting cell, we developed modules to \
+calculate the radius of gyration for growing values of n and to find the \
+best-fit values of log[c] and d for specific Eden clusters.  We then ran 190 \
+Eden model simulations and found the best value and uncertainty in log[c] and \
+d over the range 5000\[LessEqual]n\[LessEqual]10000, which turned out to be \
+log[c] = 1.690\[PlusMinus]0.005 and d = 2.035\[PlusMinus]0.001.\n\nThese \
+values are reasonable if we remember that theoretically, a very large Eden \
+cluster should be essentially circular.  The formula for the area of a \
+circle, area = \[Pi]*r^2, looks very similar to our model equation n = c*r^d, \
+and thus if the Eden model becomes circular for large values of n we would \
+expect to find that d \[TildeEqual] 2 and log[c] \[TildeEqual] log[\[Pi]] \
+\[TildeEqual] 1.145.  We indeed find that our values are somewhat close \
+(within an order of magnitude) to what we would expect, though neither is \
+within standard error of our predictions.  This is either because the Eden \
+model is not perfectly circular at large values or, more likely, we needed to \
+examine larger values of n to truly see circular behavior."
+}], "Text",
+ CellChangeTimes->{
+  3.527961339101317*^9, {3.527961811443199*^9, 3.527961835344069*^9}, {
+   3.5279618829459352`*^9, 3.527962044441073*^9}, {3.527962117022262*^9, 
+   3.5279622147123003`*^9}, {3.527962288024521*^9, 3.527962329569709*^9}, {
+   3.5282418978146524`*^9, 3.5282418993267393`*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1902, 914},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+PrintingCopies->1,
+PrintingPageRange->{1, Automatic},
+ShowSelection->True,
+FrontEndVersion->"8.0 for Microsoft Windows (64-bit) (February 23, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 230, 3, 83, "Title"],
+Cell[812, 27, 127, 2, 49, "Subtitle"],
+Cell[CellGroupData[{
+Cell[964, 33, 160, 2, 71, "Section"],
+Cell[1127, 37, 1144, 19, 47, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2308, 61, 112, 1, 71, "Section"],
+Cell[2423, 64, 87, 1, 29, "Text"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[2547, 70, 134, 1, 41, "Section"],
+Cell[2684, 73, 1543, 41, 112, "Input"],
+Cell[4230, 116, 150, 2, 29, "Text"],
+Cell[CellGroupData[{
+Cell[4405, 122, 588, 12, 132, "Input"],
+Cell[4996, 136, 254, 5, 30, "Output"],
+Cell[5253, 143, 282, 6, 30, "Output"],
+Cell[5538, 151, 386, 10, 33, "Output"],
+Cell[5927, 163, 557, 16, 33, "Output"],
+Cell[6487, 181, 640, 19, 53, "Output"]
+}, Open  ]],
+Cell[7142, 203, 211, 4, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7390, 212, 124, 3, 71, "Section"],
+Cell[7517, 217, 2832, 75, 332, "Input"],
+Cell[10352, 294, 90, 1, 29, "Text"],
+Cell[CellGroupData[{
+Cell[10467, 299, 384, 6, 31, "Input"],
+Cell[10854, 307, 2845, 90, 30, "Output"]
+}, Open  ]],
+Cell[13714, 400, 177, 4, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[13928, 409, 237, 5, 71, "Section"],
+Cell[14168, 416, 597, 10, 29, "Text"],
+Cell[14768, 428, 878, 31, 29, "Text"],
+Cell[15649, 461, 3734, 79, 392, "Input"],
+Cell[19386, 542, 90, 1, 29, "Text"],
+Cell[CellGroupData[{
+Cell[19501, 547, 130, 2, 31, "Input"],
+Cell[19634, 551, 1396, 32, 30, "Output"]
+}, Open  ]],
+Cell[21045, 586, 354, 7, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21436, 598, 202, 4, 71, "Section"],
+Cell[21641, 604, 765, 12, 29, "Text"],
+Cell[22409, 618, 1459, 30, 172, "Input"],
+Cell[23871, 650, 90, 1, 29, "Text"],
+Cell[CellGroupData[{
+Cell[23986, 655, 271, 6, 31, "Input"],
+Cell[24260, 663, 302, 6, 30, "Output"]
+}, Open  ]],
+Cell[24577, 672, 229, 4, 29, "Text"],
+Cell[24809, 678, 129, 3, 29, "Text"],
+Cell[CellGroupData[{
+Cell[24963, 685, 2913, 66, 172, "Input"],
+Cell[27879, 753, 13201, 226, 421, "Output"]
+}, Open  ]],
+Cell[41095, 982, 407, 7, 29, "Text"],
+Cell[41505, 991, 16, 0, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[41558, 996, 180, 4, 71, "Section"],
+Cell[41741, 1002, 256, 5, 29, "Text"],
+Cell[42000, 1009, 332, 6, 29, "Text"],
+Cell[42335, 1017, 830, 20, 52, "Input"],
+Cell[43168, 1039, 149, 3, 29, "Text"],
+Cell[CellGroupData[{
+Cell[43342, 1046, 583, 17, 52, "Input"],
+Cell[43928, 1065, 184, 4, 23, "PrintTemporary"]
+}, Open  ]],
+Cell[44127, 1072, 225, 4, 29, "Text"],
+Cell[CellGroupData[{
+Cell[44377, 1080, 492, 10, 72, "Input"],
+Cell[44872, 1092, 154, 4, 30, "Output"],
+Cell[45029, 1098, 158, 4, 30, "Output"]
+}, Open  ]],
+Cell[45202, 1105, 173, 4, 29, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[45412, 1114, 110, 1, 71, "Section"],
+Cell[45525, 1117, 2108, 32, 155, "Text"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

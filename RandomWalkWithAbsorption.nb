@@ -1,0 +1,518 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     20776,        509]
+NotebookOptionsPosition[     19733,        468]
+NotebookOutlinePosition[     20098,        484]
+CellTagsIndexPosition[     20055,        481]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+One Dimensional Random Walks with Absorption\
+\>", "Title",
+ CellChangeTimes->{{3.526168895131666*^9, 3.5261689156308384`*^9}, {
+   3.526169795497164*^9, 3.5261698044976788`*^9}, 3.616850343774675*^9, {
+   3.6168852114529285`*^9, 3.616885213166071*^9}}],
+
+Cell["Milan Cvitkovic", "Subtitle",
+ CellChangeTimes->{{3.5261689207951336`*^9, 3.5261689266164665`*^9}, 
+   3.6168852097507935`*^9}],
+
+Cell[CellGroupData[{
+
+Cell["Introduction", "Section",
+ CellChangeTimes->{{3.526698912231555*^9, 3.526698929369535*^9}, {
+  3.616850336641917*^9, 3.616850340915769*^9}}],
+
+Cell["\<\
+A random walk with absorption is one in which the walk ends when the walker' \
+s position reaches a certain point, the analogy being that there are 1 or \
+more barriers located in the random walk space which will absorb the random \
+walker if he reaches it/them.  In this notebook, we will be exploring the \
+case in which a random walker, with equal probability of going left or right \
+at a given step, starts at the origin and walks along a number line \
+containing two absorption barriers, one some distance a to the left of the \
+origin (a < 0) and one some distance b to the right of the origin (b > 0).  \
+In this notebook we will attempt to develop code to model such a random walk \
+with absorption with a demonstration at the end.\
+\>", "Text",
+ CellChangeTimes->{{3.5266989038880777`*^9, 3.5266989065912323`*^9}, {
+  3.5266993163566694`*^9, 3.526699360510195*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Basic Code Setup:", "Section",
+ CellChangeTimes->{{3.5261702069987*^9, 3.5261702325791636`*^9}, {
+  3.5261703112076607`*^9, 3.5261703126607437`*^9}, {3.5261707958043785`*^9, 
+  3.5261708267571487`*^9}}],
+
+Cell["\<\
+Creating a function to generate random steps with an equal probability of L \
+or R motion (i.e. an equal probability of outputting -1 or 1) and testing it:\
+\>", "Text",
+ CellChangeTimes->{{3.5261703161849456`*^9, 3.526170379644575*^9}, {
+  3.526170463981399*^9, 3.5261704657164984`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "nextStep", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"nextStep", " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"-", "1"}], "+", 
+   RowBox[{"2", "*", 
+    RowBox[{"RandomInteger", "[", 
+     RowBox[{"{", 
+      RowBox[{"0", ",", "1"}], "}"}], 
+     "]"}]}]}]}], "\[IndentingNewLine]", "nextStep", "\[IndentingNewLine]", \
+"nextStep", "\[IndentingNewLine]", "nextStep"}], "Input",
+ CellChangeTimes->{{3.526170352498022*^9, 3.526170391334244*^9}, {
+  3.52617045368081*^9, 3.5261704840785484`*^9}, {3.5266993655494833`*^9, 
+  3.526699370862787*^9}}],
+
+Cell[BoxData[
+ RowBox[{"-", "1"}]], "Output",
+ CellChangeTimes->{{3.526170469293703*^9, 3.5261704851016073`*^9}, {
+   3.5261706541042733`*^9, 3.5261706616517053`*^9}, 3.526171715154962*^9, 
+   3.5266993727098923`*^9}],
+
+Cell[BoxData["1"], "Output",
+ CellChangeTimes->{{3.526170469293703*^9, 3.5261704851016073`*^9}, {
+   3.5261706541042733`*^9, 3.5261706616517053`*^9}, 3.526171715154962*^9, 
+   3.5266993727128925`*^9}],
+
+Cell[BoxData["1"], "Output",
+ CellChangeTimes->{{3.526170469293703*^9, 3.5261704851016073`*^9}, {
+   3.5261706541042733`*^9, 3.5261706616517053`*^9}, 3.526171715154962*^9, 
+   3.526699372714893*^9}]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["An Absorption Walk Module:", "Section",
+ CellChangeTimes->{{3.5261705262699614`*^9, 3.5261705387146735`*^9}}],
+
+Cell["\<\
+Creating a module which takes the negative and positive absorption barriers \
+as arguments and outputs a random walk in the form of a list containing \
+elements {steps, position on number line} until the random walker reaches a \
+barrier:\
+\>", "Text",
+ CellChangeTimes->{{3.5261705435209484`*^9, 3.526170625489637*^9}}],
+
+Cell[BoxData[{
+ RowBox[{"Clear", "[", "AbsorptionWalk", "]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"AbsorptionWalk", "[", 
+   RowBox[{"negBound_", ",", " ", "posBound_"}], "]"}], " ", ":=", 
+  "\[IndentingNewLine]", 
+  RowBox[{"Module", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"t", ",", "x", ",", "txList"}], "}"}], ",", 
+    "\[IndentingNewLine]", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"x", " ", "=", " ", "0"}], ";", " ", 
+     RowBox[{"t", " ", "=", " ", "0"}], ";", " ", 
+     RowBox[{"txList", " ", "=", " ", 
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0"}], "}"}], "}"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"While", "[", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"negBound", "<", "x", "<", "posBound"}], ")"}], ",", 
+       "\[IndentingNewLine]", 
+       RowBox[{"(", "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"x", "+=", " ", "nextStep"}], ";", "\[IndentingNewLine]", 
+         RowBox[{"t", "++"}], ";", "\[IndentingNewLine]", 
+         RowBox[{"txList", " ", "=", " ", 
+          RowBox[{"Append", "[", 
+           RowBox[{"txList", ",", 
+            RowBox[{"{", 
+             RowBox[{"t", ",", "x"}], "}"}]}], "]"}]}]}], 
+        "\[IndentingNewLine]", ")"}]}], "]"}], ";", "\[IndentingNewLine]", 
+     "txList"}]}], "\[IndentingNewLine]", "]"}]}]}], "Input",
+ CellChangeTimes->{{3.5261693543849335`*^9, 3.5261693759161654`*^9}, {
+  3.5261694059528832`*^9, 3.5261694618530807`*^9}, {3.526169491984804*^9, 
+  3.526169549646102*^9}, {3.5261695901324177`*^9, 3.5261695904384356`*^9}, {
+  3.526169679547532*^9, 3.5261696874779854`*^9}, {3.526169720907898*^9, 
+  3.526169756564937*^9}, {3.52616984560603*^9, 3.5261699163660774`*^9}, {
+  3.526169950020002*^9, 3.526169968571063*^9}, {3.526170123646933*^9, 
+  3.526170158692938*^9}, {3.526170504141696*^9, 3.526170505872795*^9}, {
+  3.52617063062193*^9, 3.5261706330020666`*^9}, {3.526170718943982*^9, 
+  3.526170742172311*^9}, {3.526699379449278*^9, 3.5266993870357122`*^9}}],
+
+Cell["\<\
+Plotting the above series of random walks with absorption barriers a = -2 and \
+b = 8 using the above module (each plot is one walk, not not all axes are the \
+same):\
+\>", "Text",
+ CellChangeTimes->{{3.5261708566858606`*^9, 3.5261708588519845`*^9}, {
+  3.526170967478197*^9, 3.526170982720069*^9}, {3.526171307196628*^9, 
+  3.526171339765491*^9}, {3.5261713995849123`*^9, 3.5261714480186825`*^9}, {
+  3.526171549449484*^9, 3.526171550587549*^9}, {3.5267000970283213`*^9, 
+  3.526700099674473*^9}, {3.5267002106748214`*^9, 3.526700246648879*^9}, {
+  3.526700499900364*^9, 3.5267005041526074`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Clear", "[", 
+   RowBox[{"a", ",", "b"}], "]"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"a", " ", "=", " ", 
+   RowBox[{"-", "2"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b", " ", "=", " ", "8"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"PlotList", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"ListPlot", "[", 
+      RowBox[{
+       RowBox[{"AbsorptionWalk", "[", 
+        RowBox[{"a", ",", "b"}], "]"}], ",", " ", 
+       RowBox[{"Joined", " ", "\[Rule]", " ", "True"}], ",", " ", 
+       RowBox[{"Frame", " ", "\[Rule]", " ", "True"}], ",", " ", 
+       RowBox[{"Background", " ", "\[Rule]", " ", "LightGray"}], ",", 
+       RowBox[{"PlotRange", "\[Rule]", "Full"}], ",", 
+       RowBox[{"FrameLabel", " ", "\[Rule]", " ", 
+        RowBox[{"{", 
+         RowBox[{
+         "\"\<Number of Steps\>\"", ",", "\"\<Position\>\"", ",", 
+          "\"\<\>\""}], "}"}]}], ",", 
+       RowBox[{"PlotLabel", " ", "\[Rule]", " ", 
+        RowBox[{"StringForm", "[", 
+         RowBox[{
+         "\"\<Random Walk with Absorption Barriers at `` and ``\>\"", ",", 
+          "a", ",", "b"}], "]"}]}]}], "]"}], ",", 
+     RowBox[{"{", "8", "}"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{"GraphicsGrid", "[", 
+  RowBox[{
+   RowBox[{"Partition", "[", 
+    RowBox[{"PlotList", ",", "2"}], "]"}], ",", " ", 
+   RowBox[{"Frame", "\[Rule]", "True"}], ",", 
+   RowBox[{"ImageSize", "\[Rule]", "700"}]}], "]"}]}], "Input",
+ CellChangeTimes->{{3.5261713427646627`*^9, 3.52617134655888*^9}, {
+  3.5261713840990267`*^9, 3.526171388124257*^9}, {3.5261714516608915`*^9, 
+  3.526171582536377*^9}, {3.526171671623472*^9, 3.5261716788118834`*^9}, {
+  3.5266999824007645`*^9, 3.5266999954285097`*^9}, {3.5267000355238037`*^9, 
+  3.5267000386909847`*^9}, {3.526700120750678*^9, 3.526700137170617*^9}, {
+  3.5267001750417833`*^9, 3.526700182480209*^9}, {3.5267002729523835`*^9, 
+  3.5267002938415785`*^9}, {3.5267003239513006`*^9, 3.5267003817526064`*^9}, {
+  3.5267004120573397`*^9, 3.5267004347666388`*^9}, {3.5267004775810876`*^9, 
+  3.526700478716152*^9}, {3.5267005108729916`*^9, 3.5267005709044256`*^9}, {
+  3.526700653350141*^9, 3.526700752867833*^9}, {3.52670081365331*^9, 
+  3.5267010629825706`*^9}, {3.526701108500174*^9, 3.5267011530237207`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGBQB2IQjR18sIfS+6ECDqjyHA6o6gQcUNWJOKCqk0CTl0GT
+V0CTV0IzXwXNfjU0eQ00/Vpo5us4oLpTD03eAE3eEE3eCM18YzR5EzR5UzR5
+MzTzzdHkLdD0W6LJW6HJW0NpmP9tYPJQYIsmb4em3x5N3gFVfwOMD4t/RzR5
+GB+m3wlNHsaH6XeGyR8AACbxKGs=
+          "]]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 38.}, {-2., 4.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {192., -120.14580741297955`}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996212`}], InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[{{0., 0.}, {1., -1.}, {2., -2.}}]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 2.}, {-2., 0.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {576., -120.14580741297955`}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996212`}]}, {InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGBQBmIQjR18sIfS+6ECDqjyHA6o8gJo8iJo8hJo8jIweag9
+CjB5KK2EJq+CJq+GJq+BJq+FJq+DZr8emrwBmrwhmrwRmvnGUBoWDiZQGhYO
+pmjyZmj6zdHkLdDkLdHst0KTt0aTt0GTt0Uz3w5N3h5NvwNMHgIaYHxY/DnC
+5A8AADvQJ2Q=
+          "]]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 34.}, {-2., 4.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {192., -360.43742223893867`}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996215`}], InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], 
+         LineBox[{{0., 0.}, {1., 1.}, {2., 0.}, {3., -1.}, {4., 0.}, {
+          5., -1.}, {6., -2.}}]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 6.}, {-2., 1.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {576., -360.43742223893867`}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996215`}]}, {InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[CompressedData["
+1:eJxTTMoPSmViYGAQBmIQjR18sEelGRxQaQ40WgBNXsQBVb8EmrwMmrwCTB4K
+lNDkVdDk1WDy+yG0Bpq8Fpq8Dpq8Hpr5Bmjyhmj6jWDyBwDvyRYb
+          "]]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 18.}, {-2., 3.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {192., -600.7290370648977}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996215`}], InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[CompressedData["
+1:eJxt0jsKwkAQxvFgZWlhYWERRURExPdbs3maaGLUIwjWXiFH80geQcWdYv8Y
+CMPw2292Ybdxe1zvJcuyws//rf+/l2NWS5m1rEyvwKtYV1PmujrW2VjXhLfg
+bczpwLvwHryP+QOcbwgfIT+GT+BT+Azz5/AF8kucfwVfI7/B/C18B3d0lftR
+phcK7uqq77dw4R7yHtxH3ocH8AAewqWX9xeJ/74igu+Rl17mxzh/DE+QT+AH
+uPSy/xEuveRT7J/CM3gGP8Gll/vP4Tn8rKt+X+psegF/Si/v86Krrd4OZ0X2
+
+          "]]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 68.}, {0., 8.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {576., -600.7290370648977}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996215`}]}, {InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[{{0., 0.}, {1., -1.}, {2., -2.}}]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 2.}, {-2., 0.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {192., -841.0206518908569}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996204`}], InsetBox[
+      GraphicsBox[{{}, {}, 
+        {Hue[0.67, 0.6, 0.6], LineBox[CompressedData["
+1:eJxt0j0KwkAQhuHFytLCwsJCRURUxP9/k43RC3gEwdor7M30SB5BhfmKeXEh
+fGweZjIDad8e13slhDD8Pr/8f9655dNeRO/V6L0Gr8utTwPehLfklh14F96D
+9+ED+Ag+ttQeE/gUPrPUnnNL7bmAL1G/Qv815tvAt6jfwfeoP8jtHOEZ6nP0
+j37+FOGFr08F/ATXXd8v/XyphJ/huuv/ushfH6XGL1A=
+          "]]}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesOrigin->{0, 0},
+       Background->GrayLevel[0.85],
+       Frame->True,
+       FrameLabel->{
+         FormBox["\"Number of Steps\"", TraditionalForm], 
+         FormBox["\"Position\"", TraditionalForm], 
+         FormBox["\"\"", TraditionalForm]},
+       PlotLabel->FormBox[
+         InterpretationBox[
+         "\"Random Walk with Absorption Barriers at \
+\\!\\(TraditionalForm\\`\\(-2\\)\\) and \\!\\(TraditionalForm\\`8\\)\"", 
+          StringForm[
+          "Random Walk with Absorption Barriers at `` and ``", -2, 8], 
+          Editable -> False], TraditionalForm],
+       PlotRange->{{0., 42.}, {-2., 5.}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{
+         Scaled[0.02], 
+         Scaled[0.02]}], {576., -841.0206518908569}, 
+      ImageScaled[{0.5, 0.5}], {360., 222.49223594996204`}]}}, 
+   StyleBox[{{}, {LineBox[{{0, 0}, {0, -240.2916148259591}}], 
+      LineBox[{{0, -240.2916148259591}, {0, -480.5832296519182}}], 
+      LineBox[{{0, -480.5832296519182}, {0, -720.8748444778773}}], 
+      LineBox[{{0, -720.8748444778773}, {0, -961.1664593038364}}], 
+      LineBox[{{768., 0}, {768., -240.2916148259591}}], 
+      LineBox[{{768., -240.2916148259591}, {768., -480.5832296519182}}], 
+      LineBox[{{768., -480.5832296519182}, {768., -720.8748444778773}}], 
+      LineBox[{{768., -720.8748444778773}, {768., -961.1664593038364}}], 
+      LineBox[{{0, 0}, {384., 0}}], LineBox[{{384., 0}, {768., 0}}], 
+      LineBox[{{0, -961.1664593038364}, {384., -961.1664593038364}}], 
+      LineBox[{{384., -961.1664593038364}, {768., -961.1664593038364}}]}},
+    Antialiasing->False]},
+  ContentSelectable->True,
+  ImageSize->700,
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{{3.526700989977395*^9, 3.5267010006720066`*^9}, {
+  3.526701038682181*^9, 3.5267010635876055`*^9}, {3.52670113675179*^9, 
+  3.5267011624942627`*^9}}]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1902, 914},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+ShowSelection->True,
+FrontEndVersion->"8.0 for Microsoft Windows (64-bit) (February 23, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 263, 5, 83, "Title"],
+Cell[845, 29, 133, 2, 49, "Subtitle"],
+Cell[CellGroupData[{
+Cell[1003, 35, 146, 2, 71, "Section"],
+Cell[1152, 39, 885, 13, 47, "Text"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2074, 57, 208, 3, 71, "Section"],
+Cell[2285, 62, 298, 5, 29, "Text"],
+Cell[CellGroupData[{
+Cell[2608, 71, 576, 13, 112, "Input"],
+Cell[3187, 86, 217, 4, 30, "Output"],
+Cell[3407, 92, 200, 3, 30, "Output"],
+Cell[3610, 97, 198, 3, 30, "Output"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3857, 106, 115, 1, 71, "Section"],
+Cell[3975, 109, 330, 6, 29, "Text"],
+Cell[4308, 117, 2041, 42, 292, "Input"],
+Cell[6352, 161, 607, 10, 29, "Text"],
+Cell[CellGroupData[{
+Cell[6984, 175, 2328, 48, 132, "Input"],
+Cell[9315, 225, 10378, 238, 886, "Output"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
